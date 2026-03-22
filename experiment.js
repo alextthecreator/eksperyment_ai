@@ -51,13 +51,11 @@ function formatOptionsStacked(optionsText) {
 }
 
 async function main() {
+  /** Równolegle z parsowaniem tego modułu — `boot.js`; nie blokuje initJsPsych. */
   const assignmentPromise =
     typeof window !== "undefined" && window.__eksperymentAssignmentPromise
       ? window.__eksperymentAssignmentPromise
       : fetchAssignedGroup();
-  const { group: aiGroup, source: assignmentSource } = await assignmentPromise;
-  const withExplanation = aiGroup === "with_explanation";
-  const showAiStream = aiGroup !== "no_suggestion";
 
   const jsPsych = initJsPsych({
     override_safe_mode: true,
@@ -77,6 +75,18 @@ async function main() {
 
   jsPsych.data.addProperties({
     participant_id: participantId,
+  });
+
+  const boot = document.getElementById("eksperyment-boot");
+  if (boot) boot.remove();
+  jsPsych.getDisplayElement().innerHTML =
+    '<div class="eksperyment-boot" style="min-height:100vh;display:flex;align-items:center;justify-content:center;padding:1.5rem;box-sizing:border-box;font-family:system-ui,sans-serif;font-size:1rem;color:#334155;background:#f8fafc" role="status" aria-live="polite"><p style="margin:0">Ładowanie badania…</p></div>';
+
+  const { group: aiGroup, source: assignmentSource } = await assignmentPromise;
+  const withExplanation = aiGroup === "with_explanation";
+  const showAiStream = aiGroup !== "no_suggestion";
+
+  jsPsych.data.addProperties({
     ai_group: aiGroup,
     assignment_source: assignmentSource,
   });
@@ -322,9 +332,6 @@ async function main() {
     grid_columns: 1,
     data: { phase: "debrief_thanks" },
   });
-
-  const boot = document.getElementById("eksperyment-boot");
-  if (boot) boot.remove();
 
   jsPsych.run(timeline);
 }

@@ -1,6 +1,7 @@
 /**
  * Efekt „na żywo generowanej” sugestii — bez zmiany logiki eksperymentu (treść nadal z Excela).
  * Cały blok AI (przeszukiwanie + pisanie) ograniczony do MAX_STREAM_MS; po SLOW_HINT_AFTER_MS zmiana komunikatu.
+ * (Ten komunikat dotyczy tylko prób z animacją AI — nie wpływa na pierwszy ekran / czas ładowania strony.)
  */
 
 const MS_PER_CHAR = 26;
