@@ -79,8 +79,15 @@ async function main() {
 
   const boot = document.getElementById("eksperyment-boot");
   if (boot) boot.remove();
-  jsPsych.getDisplayElement().innerHTML =
-    '<div class="eksperyment-boot" style="min-height:100vh;display:flex;align-items:center;justify-content:center;padding:1.5rem;box-sizing:border-box;font-family:system-ui,sans-serif;font-size:1rem;color:#334155;background:#f8fafc" role="status" aria-live="polite"><p style="margin:0">Ładowanie badania…</p></div>';
+  /** `#jspsych-content` istnieje dopiero po `prepareDom()` wewnątrz `run()` — nie używaj tu `getDisplayElement()`. */
+  const loadingEl = document.createElement("div");
+  loadingEl.id = "eksperyment-loading";
+  loadingEl.setAttribute("role", "status");
+  loadingEl.setAttribute("aria-live", "polite");
+  loadingEl.style.cssText =
+    "min-height:100vh;display:flex;align-items:center;justify-content:center;padding:1.5rem;box-sizing:border-box;font-family:system-ui,sans-serif;font-size:1rem;color:#334155;background:#f8fafc";
+  loadingEl.innerHTML = '<p style="margin:0">Ładowanie badania…</p>';
+  document.body.appendChild(loadingEl);
 
   const { group: aiGroup, source: assignmentSource } = await assignmentPromise;
   const withExplanation = aiGroup === "with_explanation";
@@ -333,6 +340,8 @@ async function main() {
     data: { phase: "debrief_thanks" },
   });
 
+  const loading = document.getElementById("eksperyment-loading");
+  if (loading) loading.remove();
   jsPsych.run(timeline);
 }
 
@@ -340,6 +349,8 @@ main().catch(function (err) {
   console.error(err);
   const boot = document.getElementById("eksperyment-boot");
   if (boot) boot.remove();
+  const loading = document.getElementById("eksperyment-loading");
+  if (loading) loading.remove();
   document.body.innerHTML =
     "<p style=\"padding:2rem;font-family:system-ui\">Nie udało się uruchomić badania. Odśwież stronę.</p>";
 });
