@@ -1,8 +1,8 @@
 /**
- * Vercel Serverless: przyjmuje CSV z przeglądarki i przekazuje do Google Apps Script
- * (omija CORS — bezpośrednie POST z przeglądarki do Apps Script bywa zablokowane).
+ * Vercel serverless: accepts CSV from the browser and forwards it to Google Apps Script
+ * (avoids CORS — direct POST from the browser to Apps Script is often blocked).
  *
- * W Vercel: zmienna środowiskowa APPS_SCRIPT_URL = URL wdrożenia Web App (Apps Script).
+ * In Vercel: set APPS_SCRIPT_URL to the Web App deployment URL (Apps Script).
  */
 
 function readBody(req) {
@@ -28,7 +28,7 @@ module.exports = async (req, res) => {
   if (!url || String(url).trim() === "") {
     res.status(503).json({
       error:
-        "Brak APPS_SCRIPT_URL — ustaw w Vercel → Settings → Environment Variables",
+        "Missing APPS_SCRIPT_URL — set it in Vercel → Settings → Environment Variables",
     });
     return;
   }

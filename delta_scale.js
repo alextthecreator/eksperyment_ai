@@ -1,21 +1,21 @@
 /**
- * Skala Delta (Drwal, 1979) — poczucie umiejscowienia kontroli (24 pozycje w oryginale).
+ * Delta Scale (Drwal, 1979) — locus of control (24 items in the original).
  *
- * Poniżej są **pozycje robocze** (zwięzłe sformułowania w duchu wymiaru kontroli wewnętrznej/zewnętrznej),
- * żeby dało się testować procedurę. Przed właściwym badaniem **zamień je na oficjalne brzmienie**
- * z kwestionariusza (Drwal, R. Ł., 1979; ewentualnie aktualne adaptacje / pozwolenia wydawcy).
+ * Below are **working** items (concise internal/external wording) for testing the procedure.
+ * Before production, **replace them with the official wording** from the questionnaire
+ * (Drwal, R. Ł., 1979; or current adaptations / publisher permission).
  */
 
-/** Etykiety 1–5 — odpowiedzi klikane na skali Likerta. */
+/** Likert labels 1–5 — clickable responses. */
 export const DELTA_LIKERT_LABELS = ["1", "2", "3", "4", "5"];
 
-/** Krótki opis skali pod nagłówkiem (obie części). */
+/** Short scale description under the header (both parts). */
 export const DELTA_PREAMBLE_COMMON = `
 <p class="survey-block-intro"><strong>Skala Delta</strong> — poczucie kontroli (forma robocza).</p>
 <p class="survey-hint">Oceń, w jakim stopniu zgadzasz się z każdym stwierdzeniem (1 = zdecydowanie się nie zgadzam, 5 = zdecydowanie się zgadzam).</p>
 `;
 
-/** Pozycje 1–12 (część 1). `name` trafia do CSV. */
+/** Items 1–12 (part 1). `name` is written to CSV. */
 export const DELTA_ITEMS_PART1 = [
   { prompt: "To, co mi się przytrafia, zależy przede wszystkim ode mnie.", name: "delta_01" },
   { prompt: "Często mam wrażenie, że moje plany psują się przez przypadek lub innych ludzi.", name: "delta_02" },
@@ -31,7 +31,7 @@ export const DELTA_ITEMS_PART1 = [
   { prompt: "Mam wrażenie, że jestem zależny/a od okoliczności, których nie wybieram.", name: "delta_12" },
 ];
 
-/** Pozycje 13–24 (część 2). */
+/** Items 13–24 (part 2). */
 export const DELTA_ITEMS_PART2 = [
   { prompt: "Powodzenie w zadaniach, które mnie interesują, zwykle zależy od mojego zaangażowania.", name: "delta_13" },
   { prompt: "Często czuję, że nie mam realnego wpływu na przebieg wydarzeń wokół mnie.", name: "delta_14" },

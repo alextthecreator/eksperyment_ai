@@ -1,0 +1,31 @@
+Collecting results (CSV) in Google Sheets (free tier)
+=======================================================
+
+1) Create a new Google Sheet (e.g. name it "Study results").
+2) Extensions → Apps Script → paste code from:
+   google-apps-script/append-results.gs
+   (includes doPost — CSV append — and doGet — A→B→C rotation;
+   after edits: Deploy → Manage deployments → Edit → Deploy new version)
+3) Save the project (Ctrl+S). Make sure the script is bound to this sheet
+   (opened from the sheet menu).
+4) Deploy → New deployment → gear icon → "Web app":
+   - Execute as: your account
+   - Who has access: anyone (including anonymous)
+5) Copy the deployment URL (often ends with /exec).
+
+6) Vercel → your project → Settings → Environment Variables:
+   Name: APPS_SCRIPT_URL
+   Value: paste the URL from step 5
+   Environment: Production (and Preview if you want branch previews)
+
+7) Redeploy (Deployments → … → Redeploy) so the variable is picked up.
+   The same URL is used for POST (results) and GET (condition) via /api/submit-results and /api/next-condition.
+
+8) Test online: finish the study — rows should appear in the sheet.
+   Query ?nosubmit=1 disables upload (CSV download only locally).
+
+Locally (npm start / serve): /api does not run — that is expected;
+full API test: npx vercel dev (in the project folder), logged into Vercel.
+
+GDPR: inform participants about data collection and purpose; the sheet should
+be shared only with you / your team per study protocol.

@@ -1,6 +1,6 @@
 /**
- * Wysyłka CSV na backend (Vercel /api/submit-results → Google Arkusz).
- * Przy lokalnym `serve` endpointu brak — po cichu ignorujemy błąd (zostaje pobranie pliku).
+ * POST CSV to the backend (Vercel /api/submit-results → Google Sheet).
+ * With local `serve` there is no endpoint — errors are ignored (file download still works).
  */
 
 export async function submitResultsCsv(csv) {

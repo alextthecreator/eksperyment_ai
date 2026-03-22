@@ -19,14 +19,14 @@ import { fetchAssignedGroup } from "./assignment.js";
 
 const CHOICES = ["A", "B", "C", "D"];
 
-/** W CSV dla warunku bez AI — zamiast 0/1 lub pustki, żeby nie mylić z odpowiedzią „nie dotyczy” w analizie. */
+/** In CSV for the no-AI condition — use text instead of 0/1 or blank to avoid confusion with “N/A” in analysis. */
 const AI_METRIC_NA = "N/A";
 
 /**
- * Po których pytaniach bazowych pokazać skalę odpowiedzialności (1–10).
- * Indeksy są 0-based (kolejność w `QUESTIONS`); skala jest **po** udzieleniu odpowiedzi na dane pytanie.
- * Domyślnie: po pytaniach o numerze **4, 9, 14, 19, 24, 32, 39** (numeracja 1–40).
- * Ustaw [] żeby wyłączyć.
+ * After which base questions to show the responsibility scale (1–10).
+ * Indices are 0-based (order in `QUESTIONS`); scale appears **after** the answer to that question.
+ * Default: after questions **4, 9, 14, 19, 24, 32, 39** (numbered 1–40).
+ * Set [] to disable.
  */
 const RESPONSIBILITY_LIKERT_AFTER_QUESTION_INDEX = [
   3, 8, 13, 18, 23, 31, 38,
@@ -40,7 +40,7 @@ function escapeHtml(s) {
     .replace(/"/g, "&quot;");
 }
 
-/** Rozbija linię opcji z Excela (A) … B) …) na osobne wiersze. */
+/** Split one line of options from Excel (A) … B) …) into separate rows. */
 function formatOptionsStacked(optionsText) {
   const raw = String(optionsText || "").trim();
   if (!raw) return "";
@@ -51,10 +51,10 @@ function formatOptionsStacked(optionsText) {
 }
 
 async function main() {
-  /** Równolegle z parsowaniem tego modułu — `boot.js`; nie blokuje initJsPsych. */
+  /** Parallel with parsing this module (`boot.js`); does not block initJsPsych. */
   const assignmentPromise =
-    typeof window !== "undefined" && window.__eksperymentAssignmentPromise
-      ? window.__eksperymentAssignmentPromise
+    typeof window !== "undefined" && window.__experimentAssignmentPromise
+      ? window.__experimentAssignmentPromise
       : fetchAssignedGroup();
 
   const jsPsych = initJsPsych({
@@ -77,11 +77,11 @@ async function main() {
     participant_id: participantId,
   });
 
-  const boot = document.getElementById("eksperyment-boot");
+  const boot = document.getElementById("experiment-boot");
   if (boot) boot.remove();
-  /** `#jspsych-content` istnieje dopiero po `prepareDom()` wewnątrz `run()` — nie używaj tu `getDisplayElement()`. */
+  /** `#jspsych-content` exists only after `prepareDom()` inside `run()` — do not use `getDisplayElement()` here. */
   const loadingEl = document.createElement("div");
-  loadingEl.id = "eksperyment-loading";
+  loadingEl.id = "experiment-loading";
   loadingEl.setAttribute("role", "status");
   loadingEl.setAttribute("aria-live", "polite");
   loadingEl.style.cssText =
@@ -99,6 +99,36 @@ async function main() {
   });
 
   const timeline = [];
+
+  timeline.push({
+    type: HtmlButtonResponsePlugin,
+    stimulus: `<div class="trial-page survey-block survey-block--intro" role="main">
+  <h1 class="survey-title">Badanie online</h1>
+  <p class="survey-lead">Dziękujemy za zainteresowanie udziałem. Poniżej znajdziesz krótki opis oraz informacje o danych osobowych. Po zapoznaniu się możesz przejść do kolejnego kroku.</p>
+  <h2 class="survey-subtitle">Opis badania</h2>
+  <div class="survey-prose">
+    <p>W tym zadaniu odpowiesz na pytania wielokrotnego wyboru oraz wypełnisz krótkie kwestionariusze. Czas udziału zależy od tempa odpowiedzi. Twoje wybory są zapisywane w celach naukowych opisanych w dokumentacji badania.</p>
+    <p><strong>Uwaga:</strong> treść poniżej ma charakter <em>szablonu</em> — przed zbieraniem danych należy ją zastąpić tekstem zatwierdzonym przez zespół badawczy lub Komisję Bioetyczną.</p>
+  </div>
+  <section class="rodo-placeholder" aria-labelledby="rodo-heading">
+    <h2 id="rodo-heading" class="survey-subtitle">Informacja o przetwarzaniu danych (RODO)</h2>
+    <div class="rodo-placeholder-box">
+      <p class="rodo-placeholder-lead">[Placeholder — wklej tutaj finalną informację dla uczestnika, np.:]</p>
+      <ul class="rodo-placeholder-list">
+        <li>Administrator danych: [nazwa jednostki]</li>
+        <li>Cel przetwarzania: [np. realizacja badania naukowego]</li>
+        <li>Podstawa prawna: [np. art. 6 ust. 1 lit. a RODO — zgoda]</li>
+        <li>Okres przechowywania: […]</li>
+        <li>Prawa osoby, której dane dotyczą: [skrót lub link do pełnej informacji]</li>
+      </ul>
+    </div>
+  </section>
+</div>`,
+    choices: ["Zapoznałem/am się i przechodzę dalej"],
+    button_layout: "grid",
+    grid_columns: 1,
+    data: { phase: "consent_intro" },
+  });
 
   timeline.push({
     type: SurveyMultiChoicePlugin,
@@ -150,7 +180,7 @@ async function main() {
     data: { phase: "demographics" },
   });
 
-  /** 1) Placeholdery — technologie / zaufanie (Likert). */
+  /** 1) Placeholders — technology / trust (Likert). */
   timeline.push({
     type: SurveyLikertPlugin,
     preamble: `${TRUST_PREAMBLE.trim()}`,
@@ -160,7 +190,7 @@ async function main() {
     data: { measure: "trust_ai_placeholders", phase: "after_demographics" },
   });
 
-  /** 2) Skala Delta — pierwsze 12 pozycji (przed zadaniem). */
+  /** 2) Delta scale — first 12 items (before main task). */
   timeline.push({
     type: SurveyLikertPlugin,
     preamble: `${DELTA_PREAMBLE_COMMON.trim()}<p class="survey-part-label">Pierwsza część Skali Delta (12 pozycji) — przed zadaniem</p>`,
@@ -175,7 +205,7 @@ async function main() {
   let correctSoFar = 0;
   let answeredSoFar = 0;
 
-  /** 3) Pytania bazowe (40) — między nimi mogą pojawić się krótkie skale odpowiedzialności. */
+  /** 3) Main questions (40) — short responsibility scales may appear between them. */
   QUESTIONS.forEach((q, index) => {
     const sug = q.suggestion || "";
     const thinkingMs = showAiStream ? sampleThinkingMs() : 0;
@@ -233,7 +263,7 @@ async function main() {
       prompt: showAiStream
         ? `<footer class="trial-footer-disclaimer" role="note">Pamiętaj, sztuczna inteligencja może się mylić.</footer>`
         : "",
-      /** Przyciski od razu — animacja AI nie blokuje odpowiedzi. */
+      /** Buttons enabled immediately — AI animation does not block the response. */
       enable_button_after: 0,
       data: Object.assign(
         {
@@ -317,7 +347,7 @@ async function main() {
     }
   });
 
-  /** 4) Skala Delta — drugie 12 pozycji (po zadaniu). */
+  /** 4) Delta scale — second 12 items (after main task). */
   timeline.push({
     type: SurveyLikertPlugin,
     preamble: `${DELTA_PREAMBLE_COMMON.trim()}<p class="survey-part-label">Druga część Skali Delta (12 pozycji) — po zadaniu</p>`,
@@ -327,7 +357,7 @@ async function main() {
     data: { measure: "delta_drwal", delta_part: 2, delta_timing: "post_task" },
   });
 
-  /** 5) Podziękowanie. */
+  /** 5) Thank-you / debrief. */
   timeline.push({
     type: HtmlButtonResponsePlugin,
     stimulus: `<div class="trial-page survey-block--demo" role="main">
@@ -340,16 +370,16 @@ async function main() {
     data: { phase: "debrief_thanks" },
   });
 
-  const loading = document.getElementById("eksperyment-loading");
+  const loading = document.getElementById("experiment-loading");
   if (loading) loading.remove();
   jsPsych.run(timeline);
 }
 
 main().catch(function (err) {
   console.error(err);
-  const boot = document.getElementById("eksperyment-boot");
+  const boot = document.getElementById("experiment-boot");
   if (boot) boot.remove();
-  const loading = document.getElementById("eksperyment-loading");
+  const loading = document.getElementById("experiment-loading");
   if (loading) loading.remove();
   document.body.innerHTML =
     "<p style=\"padding:2rem;font-family:system-ui\">Nie udało się uruchomić badania. Odśwież stronę.</p>";

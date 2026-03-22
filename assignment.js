@@ -1,11 +1,11 @@
 /**
- * Przydział warunku — osobny mały moduł, żeby `boot.js` mógł odpalić fetch
- * równolegle z ładowaniem ciężkiego grafu `experiment.js` (np. questions_data.js).
+ * Condition assignment — small module so `boot.js` can fetch in parallel
+ * with loading the heavy `experiment.js` graph (e.g. `questions_data.js`).
  */
 
-/** Rotacja A→B→C przez /api/next-condition + Apps Script doGet; przy błędzie / timeoucie losowo. */
+/** A→B→C rotation via /api/next-condition + Apps Script doGet; on error/timeout, random. */
 export async function fetchAssignedGroup() {
-  /** Całość (Vercel cold start + odpowiedź API) — nie trzymaj użytkownika ~5 s jak wcześniej przy race bez abortu. */
+  /** Total time (Vercel cold start + API) — avoid ~5s waits from an un-aborted fetch. */
   const FETCH_TIMEOUT_MS = 4000;
   try {
     const controller = new AbortController();
@@ -32,7 +32,7 @@ export async function fetchAssignedGroup() {
       clearTimeout(t);
     }
   } catch {
-    /* timeout, brak API, sieć */
+    /* timeout, missing API, network */
   }
   const _r = Math.random();
   const group =

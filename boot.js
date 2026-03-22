@@ -1,6 +1,6 @@
 import { fetchAssignedGroup } from "./assignment.js";
 
-/** Startuje fetch przydziału zanim załaduje się pełny graf `experiment.js`. */
+/** Start condition fetch before the heavy `experiment.js` graph loads. */
 if (typeof window !== "undefined") {
-  window.__eksperymentAssignmentPromise = fetchAssignedGroup();
+  window.__experimentAssignmentPromise = fetchAssignedGroup();
 }

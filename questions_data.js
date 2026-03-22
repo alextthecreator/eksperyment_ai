@@ -1,4 +1,4 @@
-/** Wygenerowane — nie edytuj ręcznie; uruchom: python3 generate_questions.py [ścieżka.xlsx] */
+/** Generated — do not edit by hand; run: python3 generate_questions.py [path.xlsx] */
 export const QUESTIONS = [
   {
     "id": 1,

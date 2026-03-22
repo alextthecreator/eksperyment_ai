@@ -1,5 +1,5 @@
 {
-  "name": "eksperyment_ai",
+  "name": "ai-experiment",
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
@@ -12,7 +12,7 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "description": "",
+  "description": "jsPsych browser task with simulated AI suggestions and optional Google Sheets upload",
   "dependencies": {
     "@jspsych/plugin-html-button-response": "^2.1.0",
     "@jspsych/plugin-survey-likert": "^2.2.0",

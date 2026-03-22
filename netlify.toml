@@ -1,4 +1,4 @@
-# Wgraj repo (lub sam folder eksperyment_ai) do Netlify: Build command = npm install, Publish = .
+# Upload this repo to Netlify: Build command = npm install, Publish = .
 [build]
   command = "npm install"
   publish = "."

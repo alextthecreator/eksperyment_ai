@@ -1,6 +1,6 @@
 /**
- * Vercel (i inne hosty) oczekują katalogu wyjściowego `public/` po buildu.
- * Kopiuje statyczne pliki + vendor/ (po vendor-copy.mjs).
+ * Vercel (and similar hosts) expect an output folder `public/` after build.
+ * Copies static files + vendor/ (after vendor-copy.mjs).
  */
 import fs from "fs";
 import path from "path";
@@ -33,7 +33,7 @@ fs.mkdirSync(out, { recursive: true });
 for (const name of staticFiles) {
   const from = path.join(root, name);
   if (!fs.existsSync(from)) {
-    console.error("Brak pliku:", name);
+    console.error("Missing file:", name);
     process.exit(1);
   }
   fs.copyFileSync(from, path.join(out, name));
@@ -42,9 +42,9 @@ for (const name of staticFiles) {
 const vendorSrc = path.join(root, "vendor");
 const vendorDst = path.join(out, "vendor");
 if (!fs.existsSync(vendorSrc)) {
-  console.error("Brak vendor/ — najpierw node scripts/vendor-copy.mjs");
+  console.error("Missing vendor/ — run: node scripts/vendor-copy.mjs");
   process.exit(1);
 }
 fs.cpSync(vendorSrc, vendorDst, { recursive: true });
 
-console.log("OK: public/ — gotowe do deployu.");
+console.log("OK: public/ — ready to deploy.");

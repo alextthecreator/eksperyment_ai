@@ -4,10 +4,10 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Eksperyment AI</title>
-  <!-- jsPsych 7: style z npm -->
+  <!-- jsPsych 7: styles from npm -->
   <link href="vendor/jspsych/css/jspsych.css" rel="stylesheet" />
   <link href="local.css" rel="stylesheet" />
-  <!-- Pluginy importują pakiet `jspsych` — mapa dla przeglądarki -->
+  <!-- Plugins import `jspsych` — import map for the browser -->
   <script type="importmap">
   {
     "imports": {
@@ -20,10 +20,10 @@
   <link rel="modulepreload" href="experiment.js" />
 </head>
 <body>
-  <!-- Widoczne od pierwszego paintu — zanim załaduje się moduł i zakończy fetch przydziału warunku -->
+  <!-- Visible from first paint — before modules load and condition fetch finishes -->
   <div
-    id="eksperyment-boot"
-    class="eksperyment-boot"
+    id="experiment-boot"
+    class="experiment-boot"
     role="status"
     aria-live="polite"
     style="min-height:100vh;display:flex;align-items:center;justify-content:center;padding:1.5rem;box-sizing:border-box;font-family:system-ui,sans-serif;font-size:1rem;color:#334155;background:#f8fafc"

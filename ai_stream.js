@@ -1,19 +1,20 @@
 /**
- * Efekt „na żywo generowanej” sugestii — bez zmiany logiki eksperymentu (treść nadal z Excela).
- * Cały blok AI (przeszukiwanie + pisanie) ograniczony do MAX_STREAM_MS; po SLOW_HINT_AFTER_MS zmiana komunikatu.
- * (Ten komunikat dotyczy tylko prób z animacją AI — nie wpływa na pierwszy ekran / czas ładowania strony.)
+ * Simulated “live” AI suggestion — experiment logic unchanged (copy still comes from the spreadsheet).
+ * Whole AI block (search + typing) capped at MAX_STREAM_MS; after SLOW_HINT_AFTER_MS the label text changes.
+ * (That message only appears on trials with the AI animation — not on first-page load time.)
  */
 
 const MS_PER_CHAR = 26;
-/** Faza „Przeszukiwanie…” — losowa długość na próbę; dodatkowo przycinana tak, by zmieścić się w MAX_STREAM_MS. */
+/** “Searching…” phase — random length per trial; also clamped to fit in MAX_STREAM_MS. */
 export const THINKING_MS_MIN = 700;
 export const THINKING_MS_MAX = 5000;
 
 const PAUSE_AFTER_SUG_MS = 220;
-/** Łączny czas animacji AI (od startu do końca tekstu) — górny limit. */
+/** Total AI animation time (start to end of text) — upper cap. */
 export const MAX_STREAM_MS = 8000;
-/** Po tym czasie od startu, jeśli nadal trwa faza przeszukiwania — zmiana tekstu. */
+/** After this time from start, if still in the searching phase — switch the message. */
 export const SLOW_HINT_AFTER_MS = 5000;
+/** Shown to participants (Polish UI). */
 const SLOW_HINT_TEXT = "Przeszukiwanie zajmuje dłużej niż zazwyczaj…";
 
 const MIN_TOTAL_MS = 1200;
@@ -22,7 +23,7 @@ function sleep(ms) {
   return new Promise((r) => setTimeout(r, ms));
 }
 
-/** Jedna losowa wartość na próbę — wywołaj raz w `experiment.js` i przekaż do `estimateStreamMs` i `data-thinking-ms`. */
+/** One random value per trial — call once in `experiment.js` and pass to `estimateStreamMs` and `data-thinking-ms`. */
 export function sampleThinkingMs() {
   return Math.round(
     THINKING_MS_MIN + Math.random() * (THINKING_MS_MAX - THINKING_MS_MIN),
@@ -48,8 +49,8 @@ function estimateTypingMs(suggestion, explanation, withExplanation) {
 }
 
 /**
- * Faktyczny czas fazy „Przeszukiwanie…”: mieści się w MAX_STREAM_MS − pisanie,
- * a jeśli jest miejsce — minimum SLOW_HINT_AFTER_MS, żeby komunikat po 5 s mógł się pokazać.
+ * Actual “searching” phase duration: fits in MAX_STREAM_MS − typing time,
+ * and if there is room — at least SLOW_HINT_AFTER_MS so the 5s hint can appear.
  */
 function computeThinkingDurationMs(sug, exp, withExp, sampledMs) {
   const thinking = clampThinkingMs(sampledMs);
@@ -62,7 +63,7 @@ function computeThinkingDurationMs(sug, exp, withExp, sampledMs) {
   return maxThinking;
 }
 
-/** Szacunek do CSV (nie blokuje przycisków). */
+/** Estimate for CSV (does not block buttons). */
 export function estimateStreamMs(
   suggestion,
   explanation,
@@ -80,8 +81,8 @@ export function estimateStreamMs(
 }
 
 /**
- * Uruchamia sekwencję w kontenerze `.ai-stream-root`.
- * Przyciski odpowiedzi są odblokowane od początku (`enable_button_after: 0` w experiment.js).
+ * Runs the sequence inside `.ai-stream-root`.
+ * Answer buttons stay enabled from the start (`enable_button_after: 0` in experiment.js).
  */
 export async function runAiStream(rootEl) {
   if (!rootEl) return 0;
@@ -125,7 +126,7 @@ export async function runAiStream(rootEl) {
   if (cursorExp) cursorExp.hidden = true;
   if (sugEl) sugEl.textContent = "";
 
-  /** Śpienie z przycięciem do deadline. */
+  /** Sleep clamped to deadline. */
   async function sleepUntil(ms) {
     const left = deadline - performance.now();
     if (left <= 0) return;
@@ -140,7 +141,7 @@ export async function runAiStream(rootEl) {
     if (performance.now() >= deadline) break;
   }
 
-  /** Nie wywołuj clearTimeout(slowTimer) — przy krótkiej fazie timer miałby się nigdy nie odpalić. */
+  /** Do not clearTimeout(slowTimer) — on a short phase the timer might never fire. */
 
   if (thinking) thinking.remove();
   if (body) {

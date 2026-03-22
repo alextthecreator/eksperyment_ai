@@ -1,9 +1,9 @@
 /**
- * Zwraca kolejny warunek międzyczynnikowy (rotacja A→B→C) z Google Apps Script (doGet).
- * Wymaga APPS_SCRIPT_URL — ten sam URL co wdrożenie skryptu; doGet w append-results.gs.
+ * Returns the next between-subjects condition (A→B→C rotation) from Google Apps Script (doGet).
+ * Requires APPS_SCRIPT_URL — same URL as the deployed script; see `append-results.gs`.
  */
 
-/** GAS bywa wolny lub „zamarza” — bez limitu funkcja Vercel mogła trzymać odpowiedź wiele sekund. */
+/** Google Apps Script can be slow — without a limit the Vercel function could hang for many seconds. */
 const APPS_SCRIPT_FETCH_MS = 2500;
 
 module.exports = async (req, res) => {

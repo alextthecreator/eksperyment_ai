@@ -1,6 +1,6 @@
 /**
- * Placeholdery — zaufanie do AI / technologii (edytuj treści przed badaniem).
- * Skala 1–5 jak w Skali Delta.
+ * Placeholder items — trust in AI / technology (edit copy before running the study).
+ * Same 1–5 scale as the Delta scale.
  */
 import { DELTA_LIKERT_LABELS } from "./delta_scale.js";
 

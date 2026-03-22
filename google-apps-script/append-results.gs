@@ -1,14 +1,14 @@
 /**
- * Google Apps Script — wklej do projektu powiązanego z TWOIM arkuszem:
- * Arkusz Google → Rozszerzenia → Apps Script → nowy projekt → wklej → Zapisz.
+ * Google Apps Script — paste into the project bound to YOUR spreadsheet:
+ * Google Sheet → Extensions → Apps Script → new project → paste → Save.
  *
- * Wdróż: Wdróż → Nowe wdrożenie → Typ: Aplikacja internetowa
- *   Wykonaj jako: ja
- *   Dostęp: wszyscy (nawet anonimowi)
- * Skopiuj URL wdrożenia → Vercel: APPS_SCRIPT_URL
+ * Deploy: Deploy → New deployment → Type: Web app
+ *   Execute as: Me
+ *   Who has access: Anyone (even anonymous)
+ * Copy the deployment URL → Vercel: APPS_SCRIPT_URL
  *
- * doGet — rotacja warunków: 1→with_explanation, 2→without_explanation, 3→no_suggestion, potem od nowa.
- * (Licznika używa Vercel /api/next-condition przez GET do tego URL.)
+ * doGet — condition rotation: 1→with_explanation, 2→without_explanation, 3→no_suggestion, then repeat.
+ * (Vercel /api/next-condition calls this URL with GET for the counter.)
  */
 
 function doGet(e) {
