@@ -3,6 +3,9 @@
  * Wymaga APPS_SCRIPT_URL — ten sam URL co wdrożenie skryptu; doGet w append-results.gs.
  */
 
+/** GAS bywa wolny lub „zamarza” — bez limitu funkcja Vercel mogła trzymać odpowiedź wiele sekund. */
+const APPS_SCRIPT_FETCH_MS = 2500;
+
 module.exports = async (req, res) => {
   if (req.method === "OPTIONS") {
     res.status(204).end();
@@ -27,6 +30,7 @@ module.exports = async (req, res) => {
     const r = await fetch(url, {
       method: "GET",
       redirect: "follow",
+      signal: AbortSignal.timeout(APPS_SCRIPT_FETCH_MS),
     });
     const text = await r.text();
     if (!r.ok) {
@@ -45,10 +49,13 @@ module.exports = async (req, res) => {
       fallback: !j.group,
     });
   } catch (e) {
+    const msg = String(e.message || e);
+    const aborted =
+      e && (e.name === "AbortError" || /aborted|timeout/i.test(msg));
     res.status(200).json({
       group: null,
       fallback: true,
-      reason: String(e.message || e),
+      reason: aborted ? "apps_script_timeout" : msg,
     });
   }
 };
