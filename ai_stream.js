@@ -12,9 +12,9 @@ export const THINKING_MS_MAX = 8000;
 
 const PAUSE_AFTER_SUG_MS = 220;
 /** Total AI animation time (start to end of text) — upper cap. */
-export const MAX_STREAM_MS = 8000;
+export const MAX_STREAM_MS = 4000;
 /** While still in the searching phase — after this delay from start, swap the label to SLOW_HINT_TEXT. */
-export const SLOW_HINT_AFTER_MS = 5000;
+export const SLOW_HINT_AFTER_MS = 3000;
 /** Shown to participants (Polish UI). */
 const SLOW_HINT_TEXT = "Przeszukiwanie zajmuje dłużej niż zazwyczaj…";
 

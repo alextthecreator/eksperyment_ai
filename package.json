@@ -15,6 +15,7 @@
   "description": "jsPsych browser task with simulated AI suggestions and optional Google Sheets upload",
   "dependencies": {
     "@jspsych/plugin-html-button-response": "^2.1.0",
+    "@jspsych/plugin-survey-html-form": "^2.1.0",
     "@jspsych/plugin-survey-likert": "^2.2.0",
     "@jspsych/plugin-survey-multi-choice": "^2.2.0",
     "jspsych": "^7.3.4"

@@ -32,6 +32,10 @@ const dirs = [
     "node_modules/@jspsych/plugin-survey-multi-choice/dist",
     "vendor/@jspsych/plugin-survey-multi-choice/dist",
   ],
+  [
+    "node_modules/@jspsych/plugin-survey-html-form/dist",
+    "vendor/@jspsych/plugin-survey-html-form/dist",
+  ],
 ];
 
 for (const [fromRel, toRel] of dirs) {

@@ -3,11 +3,6 @@ import HtmlButtonResponsePlugin from "./vendor/@jspsych/plugin-html-button-respo
 import SurveyLikertPlugin from "./vendor/@jspsych/plugin-survey-likert/dist/index.js";
 import SurveyMultiChoicePlugin from "./vendor/@jspsych/plugin-survey-multi-choice/dist/index.js";
 import { estimateStreamMs, runAiStream, sampleThinkingMs } from "./ai_stream.js";
-import {
-  DELTA_ITEMS_PART2,
-  DELTA_PREAMBLE_COMMON,
-  toLikertQuestions,
-} from "./delta_scale.js";
 import { QUESTIONS } from "./questions_data.js";
 import { submitResultsCsv } from "./results_submit.js";
 import { fetchAssignedGroup } from "./assignment.js";
@@ -17,8 +12,33 @@ const CHOICES = ["A", "B", "C", "D"];
 /** In CSV for the no-AI condition — use text instead of 0/1 or blank to avoid confusion with “N/A” in analysis. */
 const AI_METRIC_NA = "N/A";
 
-const RESPONSE_ENABLE_DELAY_MS = 1000;
-const TEST_QUESTIONS_LIMIT = 20;
+const RESPONSE_ENABLE_DELAY_MS = 500;
+const TEST_QUESTIONS_LIMIT = 15;
+const LIKERT_5_WORD_LABELS = [
+  "Zdecydowanie się nie zgadzam",
+  "Nie zgadzam się",
+  "Nie mam zdania",
+  "Zgadzam się",
+  "Zdecydowanie się zgadzam",
+];
+const LIKERT_7_WORD_LABELS = [
+  "Zdecydowanie się nie zgadzam",
+  "Nie zgadzam się",
+  "Raczej się nie zgadzam",
+  "Nie mam zdania",
+  "Raczej się zgadzam",
+  "Zgadzam się",
+  "Zdecydowanie się zgadzam",
+];
+const CONTROL_6_WORD_LABELS = [
+  "Brak kontroli",
+  "Niemal brak kontroli",
+  "Nieco kontroli",
+  "Pewna kontrola",
+  "Niemal pełna kontrola",
+  "Pełna kontrola",
+];
+const REQUIRED_OPTION_MESSAGE_PL = "Proszę wybrać jedną z opcji.";
 
 function escapeHtml(s) {
   return String(s)
@@ -38,7 +58,44 @@ function formatOptionsStacked(optionsText) {
     .join("");
 }
 
+function installPolishValidationMessages() {
+  const clearRadioGroupValidity = function (inputEl) {
+    if (!inputEl || inputEl.type !== "radio" || !inputEl.name) return;
+    const escapedName =
+      typeof CSS !== "undefined" && typeof CSS.escape === "function"
+        ? CSS.escape(inputEl.name)
+        : inputEl.name.replace(/"/g, '\\"');
+    document
+      .querySelectorAll(`input[type="radio"][name="${escapedName}"]`)
+      .forEach((radio) => {
+        if (typeof radio.setCustomValidity === "function") {
+          radio.setCustomValidity("");
+        }
+      });
+  };
+
+  const setPolishMessage = function (event) {
+    const el = event && event.target;
+    if (!el || typeof el.setCustomValidity !== "function") return;
+    if (el.validity && el.validity.valueMissing) {
+      el.setCustomValidity(REQUIRED_OPTION_MESSAGE_PL);
+    }
+  };
+
+  const clearMessage = function (event) {
+    const el = event && event.target;
+    if (!el || typeof el.setCustomValidity !== "function") return;
+    el.setCustomValidity("");
+    clearRadioGroupValidity(el);
+  };
+
+  document.addEventListener("invalid", setPolishMessage, true);
+  document.addEventListener("input", clearMessage, true);
+  document.addEventListener("change", clearMessage, true);
+}
+
 async function main() {
+  installPolishValidationMessages();
   /** Parallel with parsing this module (`boot.js`); does not block initJsPsych. */
   const assignmentPromise =
     typeof window !== "undefined" && window.__experimentAssignmentPromise
@@ -47,12 +104,14 @@ async function main() {
 
   const jsPsych = initJsPsych({
     override_safe_mode: true,
+    show_progress_bar: true,
+    auto_update_progress_bar: true,
+    message_progress_bar: "Postęp badania",
     on_trial_start: function () {
       jsPsych.getDisplayElement().innerHTML = "";
     },
     on_finish: function () {
       const csv = jsPsych.data.get().csv();
-      jsPsych.data.get().localSave("csv", "wyniki.csv");
       submitResultsCsv(csv);
     },
   });
@@ -92,28 +151,36 @@ async function main() {
     type: HtmlButtonResponsePlugin,
     stimulus: `<div class="trial-page survey-block survey-block--intro" role="main">
   <h1 class="survey-title">Badanie online</h1>
-  <p class="survey-lead">Dziękujemy za zainteresowanie udziałem. Poniżej znajdziesz opis badania, instrukcję i informacje RODO.</p>
+  <p class="survey-lead">Dziękujemy za zainteresowanie udziałem. Poniżej znajdziesz najważniejsze informacje organizacyjne przed rozpoczęciem badania.</p>
   <h2 class="survey-subtitle">Opis badania</h2>
   <div class="survey-prose">
-    <p>[Placeholder: finalny opis badania.]</p>
-    <p>[Placeholder: cel badania i przewidywany czas udziału.]</p>
+    <p>Badanie polega na udzielaniu odpowiedzi na pytania zamknięte oraz wypełnieniu kilku krótkich kwestionariuszy. W trakcie badania możesz zobaczyć dodatkowe podpowiedzi systemowe. Prosimy o odpowiadanie zgodnie z własną oceną.</p>
+    <p>Udział jest dobrowolny i anonimowy. Na każdym etapie możesz zrezygnować z udziału, zamykając okno przeglądarki.</p>
+    <p>Szacowany czas udziału: około 10 minut.</p>
   </div>
   <h2 class="survey-subtitle">Instrukcja</h2>
   <div class="survey-prose">
-    <p>[Placeholder: finalna instrukcja wykonywania zadań.]</p>
-    <p>[Placeholder: zasady odpowiadania i informacja o możliwości pomyłki AI.]</p>
+    <p>1. Czytaj uważnie treść każdego ekranu i wybieraj odpowiedzi zgodnie z własnym przekonaniem.</p>
+    <p>2. W części testowej zaznacz jedną odpowiedź przy każdym pytaniu.</p>
+    <p>3. W części kwestionariuszowej oceniaj stwierdzenia na dostępnych skalach (np. zdecydowanie się nie zgadzam - zdecydowanie się zgadzam) zgodnie z opisem podanym nad pytaniami.</p>
+    <p>4. Nie ma limitu czasu na pojedyncze pytanie, ale prosimy o płynną pracę bez dłuższych przerw.</p>
+    <p>5. Po zakończeniu badania wyświetli się ekran podsumowania i podziękowanie.</p>
+    <p>Dziękujemy za poświęcony czas i rzetelne odpowiedzi.</p>
   </div>
   <h2 class="survey-subtitle">RODO</h2>
   <section class="rodo-placeholder" aria-labelledby="rodo-heading">
     <h2 id="rodo-heading" class="survey-subtitle">Informacja o przetwarzaniu danych</h2>
     <div class="rodo-placeholder-box">
-      <p class="rodo-placeholder-lead">[Placeholder: finalna treść klauzuli informacyjnej RODO.]</p>
-      <ul class="rodo-placeholder-list">
-        <li>[Placeholder: administrator danych]</li>
-        <li>[Placeholder: cel i podstawa przetwarzania]</li>
-        <li>[Placeholder: okres przechowywania]</li>
-        <li>[Placeholder: prawa uczestnika badania]</li>
-      </ul>
+      <p class="rodo-placeholder-lead">Klauzula informacyjna RODO (wersja robocza - do zatwierdzenia formalnego):</p>
+      <p class="survey-prose">
+        Administratorem danych osobowych jest <span style="color:#b91c1c;font-weight:600;">[nazwa jednostki / instytucji prowadzącej badanie]</span>.
+        Dane są przetwarzane w celu realizacji badania naukowego i analizy zbiorczych wyników, na podstawie zgody uczestnika
+        (art. 6 ust. 1 lit. a RODO). Zakres przetwarzanych danych obejmuje odpowiedzi udzielone w badaniu oraz dane techniczne
+        niezbędne do jego realizacji. Dane będą przechowywane przez okres niezbędny do opracowania wyników badania lub do czasu
+        wycofania zgody, jeśli ma to zastosowanie. Uczestnikowi przysługuje prawo dostępu do danych, ich sprostowania, ograniczenia
+        przetwarzania, usunięcia oraz wycofania zgody. W sprawach związanych z przetwarzaniem danych można skontaktować się pod adresem:
+        <span style="color:#b91c1c;font-weight:600;">[adres e-mail kontaktowy]</span>.
+      </p>
     </div>
   </section>
 </div>`,
@@ -123,59 +190,66 @@ async function main() {
     data: { phase: "study_intro_instruction_gdpr" },
   });
 
-  /** 1) Strona druga: 5 pytan sprawczosc + 1 pytanie o technologie. */
+  /** 1) Second page: 5 agency items + 2 technology items (Likert layout). */
   timeline.push({
     type: SurveyLikertPlugin,
-    preamble: `<p class="survey-block-intro"><strong>[Pomocniczy nagłówek (do usunięcia)] Sprawczość</strong></p>
-<p class="survey-hint">[Pomocniczy nagłówek (do usunięcia)] Zaznacz odpowiedź od 1 do 5.</p>
-<p class="survey-block-intro"><strong>[Pomocniczy nagłówek (do usunięcia)] Zaufanie do technologii</strong></p>`,
+    preamble: `<div class="survey-block survey-block--demo">
+
+</div>`,
     questions: [
       {
         prompt:
-          "Na ile czujesz, że wynik Twoich działań w badaniu zależy od Ciebie?",
+          "1) Na ile czujesz, że wynik Twoich działań w badaniu zależy od Ciebie?",
         name: "agency_01",
-        labels: ["1", "2", "3", "4", "5"],
+        labels: LIKERT_5_WORD_LABELS,
         required: true,
       },
       {
         prompt:
-          "Na ile zgadzasz się ze stwierdzeniem: potrafię skutecznie wpływać na efekt wykonywanych zadań?",
+          "2) Na ile zgadzasz się ze stwierdzeniem: potrafię skutecznie wpływać na efekt wykonywanych zadań?",
         name: "agency_02",
-        labels: ["1", "2", "3", "4", "5"],
+        labels: LIKERT_5_WORD_LABELS,
         required: true,
       },
       {
         prompt:
-          "Na ile masz poczucie kontroli nad tym, jak odpowiadasz na pytania?",
+          "3) Na ile masz poczucie kontroli nad tym, jak odpowiadasz na pytania?",
         name: "agency_03",
-        labels: ["1", "2", "3", "4", "5"],
+        labels: LIKERT_5_WORD_LABELS,
         required: true,
       },
       {
         prompt:
-          "Na ile Twoim zdaniem własny wysiłek przekłada się na poprawność odpowiedzi?",
+          "4) Na ile Twoim zdaniem własny wysiłek przekłada się na poprawność odpowiedzi?",
         name: "agency_04",
-        labels: ["1", "2", "3", "4", "5"],
+        labels: LIKERT_5_WORD_LABELS,
         required: true,
       },
       {
         prompt:
-          "Na ile czujesz się odpowiedzialny/a za końcowy wynik uzyskany w badaniu?",
+          "5) Na ile czujesz się odpowiedzialny/a za końcowy wynik uzyskany w badaniu?",
         name: "agency_05",
-        labels: ["1", "2", "3", "4", "5"],
+        labels: LIKERT_5_WORD_LABELS,
         required: true,
       },
       {
         prompt:
-          "Na ile ufasz technologiom cyfrowym przy rozwiązywaniu zadań podobnych do tego badania?",
-        name: "technology_trust_01",
-        labels: ["1", "2", "3", "4", "5"],
+          "6) Jak bardzo na co dzień korzystasz z technologii (komputer, smartfon, aplikacje)?",
+        name: "trust_tech_daily_use",
+        labels: ["Bardzo mało", "Raczej mało", "Średnio", "Raczej dużo", "Bardzo dużo"],
+        required: true,
+      },
+      {
+        prompt:
+          "7) Jak często korzystasz z narzędzi sztucznej inteligencji (np. czat, tłumacz, generowanie tekstu)?",
+        name: "trust_ai_tools_frequency",
+        labels: ["Nigdy", "Rzadko", "Czasami", "Często", "Bardzo często"],
         required: true,
       },
     ],
     button_label: "Dalej",
     scale_width: 720,
-    data: { measure: "agency_and_technology_short", phase: "pre_test_questionnaires" },
+    data: { phase: "pre_test_agency_technology" },
   });
 
   const testQuestions = QUESTIONS.slice(0, TEST_QUESTIONS_LIMIT);
@@ -184,7 +258,7 @@ async function main() {
   let correctSoFar = 0;
   let answeredSoFar = 0;
 
-  /** 3) Pytania testowe (20). */
+  /** 3) Test questions (20). */
   testQuestions.forEach((q, index) => {
     const sug = q.suggestion || "";
     const thinkingMs = showAiStream ? sampleThinkingMs() : 0;
@@ -324,34 +398,82 @@ async function main() {
 
   });
 
-  /** 4) Kwestionariusze od Kuby + pytanie o kontrole. */
   timeline.push({
     type: SurveyLikertPlugin,
-    preamble: `${DELTA_PREAMBLE_COMMON.trim()}<p class="survey-part-label">[Placeholder: kwestionariusze od Kuby — sekcja 1]</p>`,
-    questions: toLikertQuestions(DELTA_ITEMS_PART2),
-    button_label: "Dalej",
-    scale_width: 720,
-    data: { measure: "delta_drwal", delta_part: 2, delta_timing: "post_test_kuba" },
-  });
 
-  timeline.push({
-    type: SurveyLikertPlugin,
-    preamble: `<p class="survey-block-intro"><strong>Pytanie kontrolne</strong></p>`,
     questions: [
       {
+        prompt: "Mam kontrolę nad moim życiem.",
+        labels: LIKERT_7_WORD_LABELS,
+        name: "greenaway_control_life",
+        required: true,
+      },
+      {
+        prompt: "Gdy daję z siebie wszystko życie nabiera sensu.",
+        labels: LIKERT_5_WORD_LABELS,
+        name: "meaningfulness_01",
+        required: true,
+      },
+      {
+        prompt: "Kiedy bardzo się staram, moje życie ma sens.",
+        labels: LIKERT_5_WORD_LABELS,
+        name: "meaningfulness_02",
+        required: true,
+      },
+      {
         prompt:
-          "[Placeholder] Pytanie kontrolne: zaznacz odpowiedź zgodnie z instrukcją badacza.",
-        labels: ["1", "2", "3", "4", "5"],
-        name: "control_question_placeholder",
+          "Kiedy wymagam od siebie więcej czuję, że realizuję swoje ideały.",
+        labels: LIKERT_5_WORD_LABELS,
+        name: "meaningfulness_03",
+        required: true,
+      },
+      {
+        prompt: "Lubię, gdy życie stawia przede mną intelektualne wyzwania.",
+        labels: LIKERT_5_WORD_LABELS,
+        name: "nfc_01",
+        required: true,
+      },
+      {
+        prompt:
+          "Nie podejmuję się rozwiązywania złożonych problemów intelektualnych.",
+        labels: LIKERT_5_WORD_LABELS,
+        name: "nfc_02",
+        required: true,
+      },
+      {
+        prompt: "Staram się wybierać zadania, które są mało skomplikowane.",
+        labels: LIKERT_5_WORD_LABELS,
+        name: "nfc_03",
+        required: true,
+      },
+      {
+        prompt:
+          "Wolę nauczyć się, jak rozwiązać problem, niż dostać gotowe rozwiązanie.",
+        labels: LIKERT_5_WORD_LABELS,
+        name: "nfc_04",
+        required: true,
+      },
+      {
+        prompt:
+          "Wolę zadania, które wymagają ode mnie całkowitej koncentracji, niż te, których rozwiązanie przychodzi mi bez trudu.",
+        labels: LIKERT_5_WORD_LABELS,
+        name: "nfc_05",
+        required: true,
+      },
+      {
+        prompt:
+          "W jakim stopniu miałeś/miałaś poczucie kontroli nad zadaniem?",
+        labels: CONTROL_6_WORD_LABELS,
+        name: "control_over_task",
         required: true,
       },
     ],
     button_label: "Dalej",
     scale_width: 720,
-    data: { measure: "control_question", phase: "post_test_control" },
+    data: { measure: "post_test_questionnaires_plus_control", phase: "post_test_questionnaires" },
   });
 
-  /** 5) Wynik po badaniu (przed demografia). */
+  /** 5) Result screen after test (before demographics). */
   timeline.push({
     type: HtmlButtonResponsePlugin,
     stimulus: function () {
@@ -367,7 +489,7 @@ async function main() {
     data: { phase: "results_screen" },
   });
 
-  /** 6) Demografia na koncu. */
+  /** 6) Demographics at the end. */
   timeline.push({
     type: SurveyMultiChoicePlugin,
     preamble: `<div class="survey-block survey-block--demo">
@@ -423,7 +545,7 @@ async function main() {
     type: HtmlButtonResponsePlugin,
     stimulus: `<div class="trial-page survey-block--demo" role="main">
   <h1 class="survey-title">Dziękujemy za udział w badaniu</h1>
-  <p class="survey-lead">Możesz zamknąć tę kartę przeglądarki. Jeśli pobrałeś/aś plik z wynikami, przekaż go zgodnie z instrukcją badacza.</p>
+  <p class="survey-lead">Możesz zamknąć tę kartę przeglądarki.</p>
 </div>`,
     choices: ["Zakończ"],
     button_layout: "grid",

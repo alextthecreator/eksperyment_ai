@@ -40,7 +40,7 @@ body {
   box-sizing: border-box;
 }
 
-/* Likert (Skala Delta, zaufanie): plugin lays out edge-to-edge — extra inset on top of wrapper padding */
+/* Likert blocks: plugin lays out edge-to-edge — extra inset on top of wrapper padding */
 #jspsych-content:has(#jspsych-survey-likert-form) {
   padding-left: 0.65rem;
   padding-right: 0.65rem;
@@ -413,6 +413,7 @@ body {
 #jspsych-content .jspsych-survey-likert-opts {
   max-width: min(720px, 100%);
   width: 100% !important;
+  table-layout: fixed;
 }
 
 /* Larger Likert radio dots — better access on mobile */
@@ -431,7 +432,43 @@ body {
 #jspsych-content .jspsych-survey-likert-opt-label {
   padding: 0.35rem 0.15rem;
   display: inline-block;
+  text-align: center;
+  line-height: 1.25;
+  white-space: normal;
+  overflow-wrap: anywhere;
   cursor: pointer;
+}
+
+@media (max-width: 768px) {
+  #jspsych-content .jspsych-survey-likert-statement {
+    font-size: 0.96rem;
+  }
+
+  #jspsych-content .jspsych-survey-likert-opt-label {
+    font-size: 0.76rem;
+    padding: 0.3rem 0.08rem;
+  }
+
+  #jspsych-content .jspsych-survey-likert-opts li input[type="radio"] {
+    margin-left: 0 !important;
+  }
+}
+
+@media (max-width: 480px) {
+  #jspsych-content .jspsych-survey-likert-opt-label {
+    font-size: 0.7rem;
+    line-height: 1.15;
+  }
+
+  #jspsych-content .survey-title {
+    font-size: 1.2rem;
+  }
+
+  #jspsych-content .survey-lead,
+  #jspsych-content .survey-hint,
+  #jspsych-content .survey-prose {
+    font-size: 0.9rem;
+  }
 }
 
 /* Demographics — larger option radios */
@@ -454,7 +491,7 @@ body {
   line-height: 1.45;
 }
 
-/* Intro page + RODO (PL GDPR) placeholder block */
+/* Intro page + GDPR placeholder block */
 .survey-block--intro {
   max-width: 40rem;
 }
