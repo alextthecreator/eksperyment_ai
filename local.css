@@ -276,12 +276,14 @@ body {
 
 #jspsych-html-button-response-btngroup {
   margin-top: 1.25rem;
+  margin-bottom: max(1.5rem, calc(0.75rem + env(safe-area-inset-bottom, 0px)));
   width: 100%;
   max-width: 42rem;
   margin-left: auto;
   margin-right: auto;
   justify-content: stretch;
   gap: 0.5rem;
+  padding-bottom: max(1.25rem, env(safe-area-inset-bottom, 0px));
 }
 
 #jspsych-html-button-response-btngroup.jspsych-btn-group-grid {
@@ -294,6 +296,11 @@ body {
   min-height: 2.75rem;
   padding: 0.65rem 1rem;
   font-size: 1rem;
+}
+
+/* Keep clear bottom spacing on intro / html-button-response pages */
+#jspsych-content:has(#jspsych-html-button-response-stimulus) {
+  padding-bottom: max(2.25rem, calc(1rem + env(safe-area-inset-bottom, 0px)));
 }
 
 /* Plugin buttons (Likert, multi-choice) — larger touch target */
@@ -309,7 +316,7 @@ body {
 #jspsych-content form#jspsych-survey-multi-choice_form {
   padding-left: 0.5rem;
   padding-right: 0.5rem;
-  padding-bottom: max(2rem, calc(0.75rem + env(safe-area-inset-bottom, 0px)));
+  padding-bottom: max(4rem, calc(2rem + env(safe-area-inset-bottom, 0px)));
   box-sizing: border-box;
 }
 
@@ -321,6 +328,7 @@ body {
   margin-left: auto;
   margin-right: auto;
   margin-top: 1.5rem;
+  margin-bottom: max(1.25rem, env(safe-area-inset-bottom, 0px));
   box-sizing: border-box;
 }
 
@@ -416,26 +424,42 @@ body {
   table-layout: fixed;
 }
 
+#jspsych-content .jspsych-survey-likert-opts li {
+  text-align: center;
+  vertical-align: top;
+}
+
 /* Larger Likert radio dots — better access on mobile */
 #jspsych-content .jspsych-survey-likert-opts li input[type="radio"] {
   width: 1.5rem !important;
   height: 1.5rem !important;
   min-width: 1.5rem !important;
   min-height: 1.5rem !important;
-  margin-left: -0.75rem !important;
-  margin-top: 0.25rem;
+  margin: 0.2rem auto 0.25rem !important;
+  display: block;
+  float: none !important;
+  position: static !important;
+  left: auto !important;
+  right: auto !important;
+  transform: none !important;
   flex-shrink: 0;
   cursor: pointer;
   accent-color: #2563eb;
 }
 
 #jspsych-content .jspsych-survey-likert-opt-label {
-  padding: 0.35rem 0.15rem;
-  display: inline-block;
+  padding: 0.35rem 0.1rem;
+  display: block;
+  width: 100% !important;
+  margin: 0 auto;
   text-align: center;
   line-height: 1.25;
   white-space: normal;
   overflow-wrap: anywhere;
+  word-break: normal;
+  hyphens: none;
+  max-width: none;
+  box-sizing: border-box;
   cursor: pointer;
 }
 
@@ -445,19 +469,17 @@ body {
   }
 
   #jspsych-content .jspsych-survey-likert-opt-label {
-    font-size: 0.76rem;
-    padding: 0.3rem 0.08rem;
-  }
-
-  #jspsych-content .jspsych-survey-likert-opts li input[type="radio"] {
-    margin-left: 0 !important;
+    font-size: 0.68rem;
+    line-height: 1.15;
+    padding: 0.25rem 0.04rem;
   }
 }
 
 @media (max-width: 480px) {
   #jspsych-content .jspsych-survey-likert-opt-label {
-    font-size: 0.7rem;
-    line-height: 1.15;
+    font-size: 0.56rem;
+    line-height: 1.08;
+    padding: 0.2rem 0.04rem;
   }
 
   #jspsych-content .survey-title {

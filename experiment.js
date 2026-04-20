@@ -164,7 +164,7 @@ async function main() {
     <p>2. W części testowej zaznacz jedną odpowiedź przy każdym pytaniu.</p>
     <p>3. W części kwestionariuszowej oceniaj stwierdzenia na dostępnych skalach (np. zdecydowanie się nie zgadzam - zdecydowanie się zgadzam) zgodnie z opisem podanym nad pytaniami.</p>
     <p>4. Nie ma limitu czasu na pojedyncze pytanie, ale prosimy o płynną pracę bez dłuższych przerw.</p>
-    <p>5. Po zakończeniu badania wyświetli się ekran podsumowania i podziękowanie.</p>
+    <p>⁠5. Po zakończeniu badania wyświetli się ekran podsumowania z wynikiem i podziękowanie.</p>
     <p>Dziękujemy za poświęcony czas i rzetelne odpowiedzi.</p>
   </div>
   <h2 class="survey-subtitle">RODO</h2>
@@ -199,51 +199,37 @@ async function main() {
     questions: [
       {
         prompt:
-          "1) Na ile czujesz, że wynik Twoich działań w badaniu zależy od Ciebie?",
+          "1) Placeholder dla pytania o sprawczość",
         name: "agency_01",
         labels: LIKERT_5_WORD_LABELS,
         required: true,
       },
       {
         prompt:
-          "2) Na ile zgadzasz się ze stwierdzeniem: potrafię skutecznie wpływać na efekt wykonywanych zadań?",
+          "2) Placeholder dla pytania o sprawczość",
         name: "agency_02",
         labels: LIKERT_5_WORD_LABELS,
         required: true,
       },
       {
         prompt:
-          "3) Na ile masz poczucie kontroli nad tym, jak odpowiadasz na pytania?",
+          "3) Placeholder dla pytania o sprawczość",
         name: "agency_03",
         labels: LIKERT_5_WORD_LABELS,
         required: true,
       },
       {
         prompt:
-          "4) Na ile Twoim zdaniem własny wysiłek przekłada się na poprawność odpowiedzi?",
+          "4) Placeholder dla pytania o sprawczość",
         name: "agency_04",
         labels: LIKERT_5_WORD_LABELS,
         required: true,
       },
       {
         prompt:
-          "5) Na ile czujesz się odpowiedzialny/a za końcowy wynik uzyskany w badaniu?",
+          "5) Placeholder dla pytania o sprawczość",
         name: "agency_05",
         labels: LIKERT_5_WORD_LABELS,
-        required: true,
-      },
-      {
-        prompt:
-          "6) Jak bardzo na co dzień korzystasz z technologii (komputer, smartfon, aplikacje)?",
-        name: "trust_tech_daily_use",
-        labels: ["Bardzo mało", "Raczej mało", "Średnio", "Raczej dużo", "Bardzo dużo"],
-        required: true,
-      },
-      {
-        prompt:
-          "7) Jak często korzystasz z narzędzi sztucznej inteligencji (np. czat, tłumacz, generowanie tekstu)?",
-        name: "trust_ai_tools_frequency",
-        labels: ["Nigdy", "Rzadko", "Czasami", "Często", "Bardzo często"],
         required: true,
       },
     ],
@@ -494,7 +480,6 @@ async function main() {
     type: SurveyMultiChoicePlugin,
     preamble: `<div class="survey-block survey-block--demo">
   <h1 class="survey-title">Demografia</h1>
-  <p class="survey-lead">[Placeholder: krotki opis sekcji demograficznej.]</p>
 </div>`,
     questions: [
       {
@@ -540,17 +525,21 @@ async function main() {
     data: { phase: "demographics" },
   });
 
-  /** 7) Thank-you / debrief. */
+  /** 7) Final thank-you screen (no extra click required). */
   timeline.push({
     type: HtmlButtonResponsePlugin,
     stimulus: `<div class="trial-page survey-block--demo" role="main">
   <h1 class="survey-title">Dziękujemy za udział w badaniu</h1>
-  <p class="survey-lead">Możesz zamknąć tę kartę przeglądarki.</p>
+  <p class="survey-lead">To już koniec. Możesz teraz zamknąć tę kartę przeglądarki.</p>
 </div>`,
-    choices: ["Zakończ"],
+    choices: ["."],
     button_layout: "grid",
     grid_columns: 1,
     data: { phase: "debrief_thanks" },
+    on_load: function () {
+      const group = document.getElementById("jspsych-html-button-response-btngroup");
+      if (group) group.style.display = "none";
+    },
   });
 
   const loading = document.getElementById("experiment-loading");
