@@ -156,6 +156,27 @@ For Vercel, use `public/` as output (already handled by current `vercel.json` se
 
 ---
 
+## Test-Only Forced Variant Links
+
+Production supports private test links with opaque codes.
+After page load, override params are removed from the browser URL bar.
+
+Base pattern:
+
+`https://<your-production-url>/?k=q7n4&v=<code>`
+
+Codes:
+
+- `a3` -> `with_explanation`
+- `b7` -> `without_explanation`
+- `c2` -> `no_suggestion`
+
+Optional safe testing flag:
+
+- add `&nosubmit=1` to skip result upload.
+
+---
+
 ## Troubleshooting
 
 | Problem | Check |

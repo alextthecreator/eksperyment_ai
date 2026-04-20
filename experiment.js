@@ -525,21 +525,17 @@ async function main() {
     data: { phase: "demographics" },
   });
 
-  /** 7) Final thank-you screen (no extra click required). */
+  /** 7) Final screen — explicit submit/finish action. */
   timeline.push({
     type: HtmlButtonResponsePlugin,
     stimulus: `<div class="trial-page survey-block--demo" role="main">
   <h1 class="survey-title">Dziękujemy za udział w badaniu</h1>
-  <p class="survey-lead">To już koniec. Możesz teraz zamknąć tę kartę przeglądarki.</p>
+  <p class="survey-lead">Kliknij przycisk poniżej, aby zakończyć badanie i wysłać odpowiedzi.</p>
 </div>`,
-    choices: ["."],
+    choices: ["Wyślij i zakończ"],
     button_layout: "grid",
     grid_columns: 1,
     data: { phase: "debrief_thanks" },
-    on_load: function () {
-      const group = document.getElementById("jspsych-html-button-response-btngroup");
-      if (group) group.style.display = "none";
-    },
   });
 
   const loading = document.getElementById("experiment-loading");
