@@ -4,15 +4,10 @@ import SurveyLikertPlugin from "./vendor/@jspsych/plugin-survey-likert/dist/inde
 import SurveyMultiChoicePlugin from "./vendor/@jspsych/plugin-survey-multi-choice/dist/index.js";
 import { estimateStreamMs, runAiStream, sampleThinkingMs } from "./ai_stream.js";
 import {
-  DELTA_ITEMS_PART1,
   DELTA_ITEMS_PART2,
   DELTA_PREAMBLE_COMMON,
   toLikertQuestions,
 } from "./delta_scale.js";
-import {
-  TRUST_PREAMBLE,
-  toTrustLikertQuestions,
-} from "./trust_placeholders.js";
 import { QUESTIONS } from "./questions_data.js";
 import { submitResultsCsv } from "./results_submit.js";
 import { fetchAssignedGroup } from "./assignment.js";
@@ -22,7 +17,7 @@ const CHOICES = ["A", "B", "C", "D"];
 /** In CSV for the no-AI condition — use text instead of 0/1 or blank to avoid confusion with “N/A” in analysis. */
 const AI_METRIC_NA = "N/A";
 
-const RESPONSE_ENABLE_DELAY_MS = 2000;
+const RESPONSE_ENABLE_DELAY_MS = 1000;
 const TEST_QUESTIONS_LIMIT = 20;
 
 function escapeHtml(s) {
@@ -97,38 +92,18 @@ async function main() {
     type: HtmlButtonResponsePlugin,
     stimulus: `<div class="trial-page survey-block survey-block--intro" role="main">
   <h1 class="survey-title">Badanie online</h1>
-  <p class="survey-lead">Dziękujemy za zainteresowanie udziałem. W kolejnych krokach pokażemy opis badania, instrukcję i informacje RODO.</p>
+  <p class="survey-lead">Dziękujemy za zainteresowanie udziałem. Poniżej znajdziesz opis badania, instrukcję i informacje RODO.</p>
   <h2 class="survey-subtitle">Opis badania</h2>
   <div class="survey-prose">
     <p>[Placeholder: finalny opis badania.]</p>
     <p>[Placeholder: cel badania i przewidywany czas udziału.]</p>
   </div>
-</div>`,
-    choices: ["Zapoznałem/am się i przechodzę dalej"],
-    button_layout: "grid",
-    grid_columns: 1,
-    data: { phase: "study_description" },
-  });
-
-  timeline.push({
-    type: HtmlButtonResponsePlugin,
-    stimulus: `<div class="trial-page survey-block survey-block--intro" role="main">
-  <h1 class="survey-title">Instrukcja</h1>
+  <h2 class="survey-subtitle">Instrukcja</h2>
   <div class="survey-prose">
     <p>[Placeholder: finalna instrukcja wykonywania zadań.]</p>
     <p>[Placeholder: zasady odpowiadania i informacja o możliwości pomyłki AI.]</p>
   </div>
-</div>`,
-    choices: ["Dalej"],
-    button_layout: "grid",
-    grid_columns: 1,
-    data: { phase: "study_instruction" },
-  });
-
-  timeline.push({
-    type: HtmlButtonResponsePlugin,
-    stimulus: `<div class="trial-page survey-block survey-block--intro" role="main">
-  <h1 class="survey-title">RODO</h1>
+  <h2 class="survey-subtitle">RODO</h2>
   <section class="rodo-placeholder" aria-labelledby="rodo-heading">
     <h2 id="rodo-heading" class="survey-subtitle">Informacja o przetwarzaniu danych</h2>
     <div class="rodo-placeholder-box">
@@ -145,27 +120,62 @@ async function main() {
     choices: ["Wyrażam zgodę i przechodzę dalej"],
     button_layout: "grid",
     grid_columns: 1,
-    data: { phase: "study_gdpr" },
+    data: { phase: "study_intro_instruction_gdpr" },
   });
 
-  /** 1) Kwestionariusz sprawczosc + zaufanie do technologii. */
+  /** 1) Strona druga: 5 pytan sprawczosc + 1 pytanie o technologie. */
   timeline.push({
     type: SurveyLikertPlugin,
-    preamble: `${TRUST_PREAMBLE.trim()}`,
-    questions: toTrustLikertQuestions(),
+    preamble: `<p class="survey-block-intro"><strong>[Pomocniczy nagłówek (do usunięcia)] Sprawczość</strong></p>
+<p class="survey-hint">[Pomocniczy nagłówek (do usunięcia)] Zaznacz odpowiedź od 1 do 5.</p>
+<p class="survey-block-intro"><strong>[Pomocniczy nagłówek (do usunięcia)] Zaufanie do technologii</strong></p>`,
+    questions: [
+      {
+        prompt:
+          "Na ile czujesz, że wynik Twoich działań w badaniu zależy od Ciebie?",
+        name: "agency_01",
+        labels: ["1", "2", "3", "4", "5"],
+        required: true,
+      },
+      {
+        prompt:
+          "Na ile zgadzasz się ze stwierdzeniem: potrafię skutecznie wpływać na efekt wykonywanych zadań?",
+        name: "agency_02",
+        labels: ["1", "2", "3", "4", "5"],
+        required: true,
+      },
+      {
+        prompt:
+          "Na ile masz poczucie kontroli nad tym, jak odpowiadasz na pytania?",
+        name: "agency_03",
+        labels: ["1", "2", "3", "4", "5"],
+        required: true,
+      },
+      {
+        prompt:
+          "Na ile Twoim zdaniem własny wysiłek przekłada się na poprawność odpowiedzi?",
+        name: "agency_04",
+        labels: ["1", "2", "3", "4", "5"],
+        required: true,
+      },
+      {
+        prompt:
+          "Na ile czujesz się odpowiedzialny/a za końcowy wynik uzyskany w badaniu?",
+        name: "agency_05",
+        labels: ["1", "2", "3", "4", "5"],
+        required: true,
+      },
+      {
+        prompt:
+          "Na ile ufasz technologiom cyfrowym przy rozwiązywaniu zadań podobnych do tego badania?",
+        name: "technology_trust_01",
+        labels: ["1", "2", "3", "4", "5"],
+        required: true,
+      },
+    ],
     button_label: "Dalej",
     scale_width: 720,
-    data: { measure: "trust_ai_placeholders", phase: "pre_test_questionnaires" },
-  });
-
-  /** 2) Skala sprawczosci (Delta) — pierwsza czesc. */
-  timeline.push({
-    type: SurveyLikertPlugin,
-    preamble: `${DELTA_PREAMBLE_COMMON.trim()}<p class="survey-part-label">Pierwsza część Skali Delta (12 pozycji) — przed zadaniem</p>`,
-    questions: toLikertQuestions(DELTA_ITEMS_PART1),
-    button_label: "Dalej",
-    scale_width: 720,
-    data: { measure: "delta_drwal", delta_part: 1, delta_timing: "pre_task" },
+    data: { measure: "agency_and_technology_short", phase: "pre_test_questionnaires" },
   });
 
   const testQuestions = QUESTIONS.slice(0, TEST_QUESTIONS_LIMIT);
