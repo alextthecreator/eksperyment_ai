@@ -1,7 +1,7 @@
 # AI Experiment — jsPsych (Browser Task)
 
 Behavioral web experiment built with **[jsPsych 7](https://www.jspsych.org/)**.
-Participants complete a fixed sequence of intro, questionnaires, test questions, post-test questionnaires, result screen, and demographics.
+Participants complete a fixed sequence of intro, test questions, post-test questionnaires, result screen, demographics, affect items, and a final submit screen.
 
 AI assistance is simulated from predefined content in `questions_data.js` and shown with a short animated "searching + typing" flow.
 
@@ -17,7 +17,7 @@ This README reflects the latest implementation, including:
 - no local CSV auto-download at the end,
 - mobile-focused styling updates,
 - AI timing changes (`max 4s`, slow-search hint after `3s`),
-- post-test control question placed on the same page as post-test questionnaires.
+- post-test questionnaires split into separate pages with anchored scale endpoints (labels and numbers).
 
 ---
 
@@ -42,15 +42,18 @@ This README reflects the latest implementation, including:
 
 ## Procedure (Screen Order)
 
-| Step | Content |
-| ---- | ------- |
-| 1 | Intro screen: welcome + study description + instruction + GDPR text |
-| 2 | Questionnaire page: agency items + technology-trust items |
-| 3 | Test block: multiple-choice questions with optional simulated AI support |
-| 4 | Post-test questionnaires page (includes Greenaway, Meaningfulness, Need for Cognition, and control-over-task item) |
-| 5 | Result summary screen |
-| 6 | Demographics |
-| 7 | Thank-you screen |
+| Step | Content                                                                                                            |
+| ---- | ------------------------------------------------------------------------------------------------------------------ |
+| 1    | Intro screen: welcome + study description + instruction + GDPR text + 18+ participation condition                  |
+| 2    | Test block: multiple-choice questions with optional simulated AI support                                           |
+| 3    | Post-test page: control over task (1-6 scale, numeric labels)                                                     |
+| 4    | Post-test page: task self-efficacy / skill / competence (separate -2 to 2 anchors per item)                       |
+| 5    | Post-test page: meaningfulness + need for cognition (1-5 scale, numeric labels)                                   |
+| 6    | Post-test page: control over life (1-7 scale, numeric labels)                                                     |
+| 7    | Result summary screen                                                                                              |
+| 8    | Demographics                                                                                                       |
+| 9    | Emotions after task (1-7 scale with anchored ends: `1/wcale`, `7/ekstremalnie`)                                  |
+| 10   | Thank-you screen                                                                                                   |
 
 ---
 
@@ -179,12 +182,12 @@ Optional safe testing flag:
 
 ## Troubleshooting
 
-| Problem | Check |
-| ------- | ----- |
-| Blank page / module errors | Use `http://` (not `file://`), then run `npm install` and `npm run build` |
-| Missing vendor assets | Confirm `vendor/jspsych/` exists after install/build |
-| Layout issues on mobile | Hard refresh and verify latest `local.css` is loaded |
-| Validation blocks next step | Ensure one option is selected in each required item |
+| Problem                     | Check                                                                     |
+| --------------------------- | ------------------------------------------------------------------------- |
+| Blank page / module errors  | Use `http://` (not `file://`), then run `npm install` and `npm run build` |
+| Missing vendor assets       | Confirm `vendor/jspsych/` exists after install/build                      |
+| Layout issues on mobile     | Hard refresh and verify latest `local.css` is loaded                      |
+| Validation blocks next step | Ensure one option is selected in each required item                       |
 
 ---
 

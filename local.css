@@ -296,6 +296,8 @@ body {
   min-height: 2.75rem;
   padding: 0.65rem 1rem;
   font-size: 1rem;
+  white-space: normal;
+  line-height: 1.35;
 }
 
 /* Keep clear bottom spacing on intro / html-button-response pages */
@@ -320,6 +322,46 @@ body {
   box-sizing: border-box;
 }
 
+#jspsych-content:has(#jspsych-survey-likert-preamble .survey-preamble--top) {
+  justify-content: flex-start;
+}
+
+#jspsych-content:has(#jspsych-survey-likert-preamble .survey-preamble--top)
+  #jspsych-survey-likert-preamble {
+  width: min(70rem, calc(100vw - 2.5rem));
+  max-width: 70rem;
+  margin: 0 auto;
+  padding-top: 0.5rem;
+  box-sizing: border-box;
+}
+
+#jspsych-content:has(#jspsych-survey-likert-preamble .survey-preamble--top)
+  form#jspsych-survey-likert-form {
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-height: min(68vh, calc(100dvh - 11rem));
+}
+
+#jspsych-content:has(#jspsych-survey-likert-preamble .survey-preamble--top)
+  form#jspsych-survey-likert-form
+  .jspsych-survey-likert-statement {
+  margin-bottom: 0.6rem;
+}
+
+#jspsych-content:has(#jspsych-survey-likert-preamble .survey-preamble--top)
+  form#jspsych-survey-likert-form
+  .jspsych-survey-likert-opts {
+  margin: 0 auto 0.85rem !important;
+}
+
+#jspsych-content:has(#jspsych-survey-likert-preamble .survey-layout--single-question)
+  form#jspsych-survey-likert-form
+  .jspsych-survey-likert-statement:first-of-type {
+  padding-top: clamp(1.4rem, 5vh, 2.8rem) !important;
+}
+
 #jspsych-content input#jspsych-survey-likert-next,
 #jspsych-content input#jspsych-survey-multi-choice-next {
   display: block;
@@ -337,6 +379,28 @@ body {
   #jspsych-content form#jspsych-survey-multi-choice_form {
     padding-left: 0.65rem;
     padding-right: 0.65rem;
+  }
+
+  #jspsych-content:has(#jspsych-survey-likert-preamble .survey-preamble--top)
+    #jspsych-survey-likert-preamble {
+    padding-top: 0.2rem;
+  }
+
+  #jspsych-content:has(#jspsych-survey-likert-preamble .survey-preamble--top)
+    form#jspsych-survey-likert-form {
+    min-height: min(64vh, calc(100dvh - 9rem));
+  }
+
+  #jspsych-content:has(#jspsych-survey-likert-preamble .survey-preamble--top)
+    form#jspsych-survey-likert-form
+    .jspsych-survey-likert-opts {
+    margin: 0 auto 0.7rem !important;
+  }
+
+  #jspsych-content:has(#jspsych-survey-likert-preamble .survey-layout--single-question)
+    form#jspsych-survey-likert-form
+    .jspsych-survey-likert-statement:first-of-type {
+    padding-top: clamp(0.85rem, 3.5vh, 1.8rem) !important;
   }
 }
 
@@ -364,6 +428,24 @@ body {
   max-width: 40rem;
   margin: 0 auto 1rem;
   text-align: left;
+}
+
+.survey-block--demo.survey-preamble--top {
+  width: 100%;
+  max-width: 70rem;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+@media (max-width: 768px) {
+  #jspsych-content:has(#jspsych-survey-likert-preamble .survey-preamble--top)
+    #jspsych-survey-likert-preamble {
+    width: calc(100vw - 1.8rem);
+  }
+
+  .survey-block--demo.survey-preamble--top {
+    max-width: none;
+  }
 }
 
 .survey-title {
@@ -453,14 +535,42 @@ body {
   width: 100% !important;
   margin: 0 auto;
   text-align: center;
-  line-height: 1.25;
+  line-height: 1.3;
   white-space: normal;
-  overflow-wrap: anywhere;
+  overflow-wrap: break-word;
   word-break: normal;
   hyphens: none;
   max-width: none;
   box-sizing: border-box;
   cursor: pointer;
+}
+
+#jspsych-content .jspsych-survey-likert-opt-label br {
+  display: block;
+  content: "";
+  margin-top: 0.08rem;
+}
+
+#jspsych-content .survey-question-intro {
+  display: block;
+  margin-bottom: 0.15rem;
+  color: #334155;
+  font-weight: 600;
+}
+
+#jspsych-content .jspsych-survey-likert-opts[data-name="emotion_intro_prompt"] {
+  display: none;
+}
+
+#jspsych-content
+  .jspsych-survey-likert-opts
+  li:first-child
+  .jspsych-survey-likert-opt-label,
+#jspsych-content
+  .jspsych-survey-likert-opts
+  li:last-child
+  .jspsych-survey-likert-opt-label {
+  font-weight: 500;
 }
 
 @media (max-width: 768px) {
@@ -469,17 +579,22 @@ body {
   }
 
   #jspsych-content .jspsych-survey-likert-opt-label {
-    font-size: 0.68rem;
-    line-height: 1.15;
-    padding: 0.25rem 0.04rem;
+    font-size: 0.74rem;
+    line-height: 1.2;
+    padding: 0.28rem 0.06rem;
   }
 }
 
 @media (max-width: 480px) {
+  #jspsych-content:has(#jspsych-survey-likert-preamble .survey-preamble--top)
+    #jspsych-survey-likert-preamble {
+    width: calc(100vw - 1.2rem);
+  }
+
   #jspsych-content .jspsych-survey-likert-opt-label {
-    font-size: 0.56rem;
-    line-height: 1.08;
-    padding: 0.2rem 0.04rem;
+    font-size: clamp(0.62rem, 2.5vw, 0.69rem);
+    line-height: 1.16;
+    padding: 0.24rem 0.06rem;
   }
 
   #jspsych-content .survey-title {
@@ -513,6 +628,14 @@ body {
   line-height: 1.45;
 }
 
+#jspsych-content:has(
+    #jspsych-survey-multi-choice-preamble .survey-block--demographics
+  )
+  .jspsych-survey-multi-choice-text
+  span.required {
+  display: none;
+}
+
 /* Intro page + GDPR placeholder block */
 .survey-block--intro {
   max-width: 40rem;
@@ -523,6 +646,7 @@ body {
   font-weight: 600;
   color: #1e3a5f;
   margin: 1.25rem 0 0.5rem;
+  padding-top: 1.25rem;
 }
 
 .survey-prose {
@@ -536,12 +660,16 @@ body {
 }
 
 .rodo-placeholder {
+  width: min(58rem, calc(100vw - 2.5rem));
   margin-top: 1.5rem;
+  margin-left: 50%;
+  transform: translateX(-50%);
+  box-sizing: border-box;
 }
 
 .rodo-placeholder-box {
   margin-top: 0.5rem;
-  padding: 1rem 1.1rem;
+  padding: 1.1rem 1.4rem;
   background: #f1f5f9;
   border: 1px solid #cbd5e1;
   border-radius: 10px;
@@ -564,4 +692,34 @@ body {
 
 .rodo-placeholder-list li {
   margin-bottom: 0.4rem;
+}
+
+@media (max-width: 768px) {
+  .rodo-placeholder {
+    width: calc(100vw - 2rem);
+  }
+
+  .rodo-placeholder-box {
+    padding: 1rem 1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .rodo-placeholder {
+    margin-top: 1.1rem;
+    width: calc(100vw - 1.4rem);
+  }
+
+  .rodo-placeholder-box {
+    padding: 0.9rem 0.85rem;
+  }
+
+  .rodo-placeholder-lead {
+    font-size: 0.88rem;
+  }
+
+  #jspsych-html-button-response-btngroup .jspsych-btn {
+    font-size: 0.95rem;
+    padding: 0.65rem 0.75rem;
+  }
 }

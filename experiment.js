@@ -14,29 +14,59 @@ const AI_METRIC_NA = "N/A";
 
 const RESPONSE_ENABLE_DELAY_MS = 500;
 const TEST_QUESTIONS_LIMIT = 15;
-const LIKERT_5_WORD_LABELS = [
-  "Zdecydowanie się nie zgadzam",
-  "Nie zgadzam się",
-  "Nie mam zdania",
-  "Zgadzam się",
-  "Zdecydowanie się zgadzam",
+const SCALE_1_TO_5_LABELS = [
+  "1<br>zdecydowanie się nie zgadzam",
+  "2",
+  "3",
+  "4",
+  "5<br>zdecydowanie się zgadzam",
 ];
-const LIKERT_7_WORD_LABELS = [
-  "Zdecydowanie się nie zgadzam",
-  "Nie zgadzam się",
-  "Raczej się nie zgadzam",
-  "Nie mam zdania",
-  "Raczej się zgadzam",
-  "Zgadzam się",
-  "Zdecydowanie się zgadzam",
+const SCALE_1_TO_6_LABELS = [
+  "1<br>brak kontroli",
+  "2",
+  "3",
+  "4",
+  "5",
+  "6<br>pełna kontrola",
 ];
-const CONTROL_6_WORD_LABELS = [
-  "Brak kontroli",
-  "Niemal brak kontroli",
-  "Nieco kontroli",
-  "Pewna kontrola",
-  "Niemal pełna kontrola",
-  "Pełna kontrola",
+const SCALE_1_TO_7_LABELS = [
+  "1<br>zdecydowanie się nie zgadzam",
+  "2",
+  "3",
+  "4",
+  "5",
+  "6",
+  "7<br>zdecydowanie się zgadzam",
+];
+const TASK_SELF_EFFICACY_SCALE = [
+  "[-2]<br>Bardzo nieskuteczny/a",
+  "-1",
+  "0",
+  "1",
+  "[2]<br>Bardzo skuteczny/a",
+];
+const TASK_EFFICIENCY_SCALE = [
+  "[-2]<br>Bardzo niesprawny/a",
+  "-1",
+  "0",
+  "1",
+  "[2]<br>Bardzo sprawny/a",
+];
+const TASK_COMPETENCE_SCALE = [
+  "[-2]<br>Bardzo niekompetentny/a",
+  "-1",
+  "0",
+  "1",
+  "[2]<br>Bardzo kompetentny/a",
+];
+const AFFECT_1_TO_7_ANCHORED_SCALE = [
+  "1<br>wcale",
+  "2",
+  "3",
+  "4",
+  "5",
+  "6",
+  "7<br>ekstremalnie",
 ];
 const REQUIRED_OPTION_MESSAGE_PL = "Proszę wybrać jedną z opcji.";
 
@@ -154,88 +184,39 @@ async function main() {
   <p class="survey-lead">Dziękujemy za zainteresowanie udziałem. Poniżej znajdziesz najważniejsze informacje organizacyjne przed rozpoczęciem badania.</p>
   <h2 class="survey-subtitle">Opis badania</h2>
   <div class="survey-prose">
-    <p>Badanie polega na udzielaniu odpowiedzi na pytania zamknięte oraz wypełnieniu kilku krótkich kwestionariuszy. W trakcie badania możesz zobaczyć dodatkowe podpowiedzi systemowe. Prosimy o odpowiadanie zgodnie z własną oceną.</p>
+    <p>Badanie polega na udzielaniu odpowiedzi na pytania zamknięte oraz wypełnieniu kilku krótkich kwestionariuszy. Prosimy o odpowiadanie zgodnie z własną oceną.</p>
     <p>Udział jest dobrowolny i anonimowy. Na każdym etapie możesz zrezygnować z udziału, zamykając okno przeglądarki.</p>
     <p>Szacowany czas udziału: około 10 minut.</p>
+    <p>Warunkiem udziału w badaniu jest ukończenie 18. roku życia.</p>
   </div>
   <h2 class="survey-subtitle">Instrukcja</h2>
   <div class="survey-prose">
     <p>1. Czytaj uważnie treść każdego ekranu i wybieraj odpowiedzi zgodnie z własnym przekonaniem.</p>
     <p>2. W części testowej zaznacz jedną odpowiedź przy każdym pytaniu.</p>
-    <p>3. W części kwestionariuszowej oceniaj stwierdzenia na dostępnych skalach (np. zdecydowanie się nie zgadzam - zdecydowanie się zgadzam) zgodnie z opisem podanym nad pytaniami.</p>
+    <p>3. W części kwestionariuszowej oceniaj stwierdzenia na dostępnych skalach (np. zdecydowanie się nie zgadzam - zdecydowanie się zgadzam) zgodnie z opisem podanym nad lub pod pytaniami.</p>
     <p>4. Nie ma limitu czasu na pojedyncze pytanie, ale prosimy o płynną pracę bez dłuższych przerw.</p>
     <p>⁠5. Po zakończeniu badania wyświetli się ekran podsumowania z wynikiem i podziękowanie.</p>
-    <p>Dziękujemy za poświęcony czas i rzetelne odpowiedzi.</p>
+    <p>Dziękujemy za poświęcony czas.</p>
   </div>
-  <h2 class="survey-subtitle">RODO</h2>
   <section class="rodo-placeholder" aria-labelledby="rodo-heading">
-    <h2 id="rodo-heading" class="survey-subtitle">Informacja o przetwarzaniu danych</h2>
+    <h2 id="rodo-heading" class="survey-subtitle">Informacja o przetwarzaniu danych osobowych</h2>
     <div class="rodo-placeholder-box">
-      <p class="rodo-placeholder-lead">Klauzula informacyjna RODO (wersja robocza - do zatwierdzenia formalnego):</p>
-      <p class="survey-prose">
-        Administratorem danych osobowych jest <span style="color:#b91c1c;font-weight:600;">[nazwa jednostki / instytucji prowadzącej badanie]</span>.
+      <p class="survey-prose"><i>
+        Administratorem danych osobowych jest Uniwersytet SWPS z siedzibą w Warszawie, ul. Chodakowska 19/31, 03-815 Warszawa.<br><br>
         Dane są przetwarzane w celu realizacji badania naukowego i analizy zbiorczych wyników, na podstawie zgody uczestnika
         (art. 6 ust. 1 lit. a RODO). Zakres przetwarzanych danych obejmuje odpowiedzi udzielone w badaniu oraz dane techniczne
         niezbędne do jego realizacji. Dane będą przechowywane przez okres niezbędny do opracowania wyników badania lub do czasu
-        wycofania zgody, jeśli ma to zastosowanie. Uczestnikowi przysługuje prawo dostępu do danych, ich sprostowania, ograniczenia
+        wycofania zgody, jeśli ma to zastosowanie.<br><br>Uczestnikowi przysługuje prawo dostępu do danych, ich sprostowania, ograniczenia
         przetwarzania, usunięcia oraz wycofania zgody. W sprawach związanych z przetwarzaniem danych można skontaktować się pod adresem:
-        <span style="color:#b91c1c;font-weight:600;">[adres e-mail kontaktowy]</span>.
-      </p>
+        swps@swps.edu.pl.
+      </i></p>
     </div>
   </section>
 </div>`,
-    choices: ["Wyrażam zgodę i przechodzę dalej"],
+    choices: ["Potwierdzam ukończenie 18 lat, wyrażam zgodę i przechodzę dalej"],
     button_layout: "grid",
     grid_columns: 1,
     data: { phase: "study_intro_instruction_gdpr" },
-  });
-
-  /** 1) Second page: 5 agency items + 2 technology items (Likert layout). */
-  timeline.push({
-    type: SurveyLikertPlugin,
-    preamble: `<div class="survey-block survey-block--demo">
-
-</div>`,
-    questions: [
-      {
-        prompt:
-          "1) Placeholder dla pytania o sprawczość",
-        name: "agency_01",
-        labels: LIKERT_5_WORD_LABELS,
-        required: true,
-      },
-      {
-        prompt:
-          "2) Placeholder dla pytania o sprawczość",
-        name: "agency_02",
-        labels: LIKERT_5_WORD_LABELS,
-        required: true,
-      },
-      {
-        prompt:
-          "3) Placeholder dla pytania o sprawczość",
-        name: "agency_03",
-        labels: LIKERT_5_WORD_LABELS,
-        required: true,
-      },
-      {
-        prompt:
-          "4) Placeholder dla pytania o sprawczość",
-        name: "agency_04",
-        labels: LIKERT_5_WORD_LABELS,
-        required: true,
-      },
-      {
-        prompt:
-          "5) Placeholder dla pytania o sprawczość",
-        name: "agency_05",
-        labels: LIKERT_5_WORD_LABELS,
-        required: true,
-      },
-    ],
-    button_label: "Dalej",
-    scale_width: 720,
-    data: { phase: "pre_test_agency_technology" },
   });
 
   const testQuestions = QUESTIONS.slice(0, TEST_QUESTIONS_LIMIT);
@@ -244,7 +225,7 @@ async function main() {
   let correctSoFar = 0;
   let answeredSoFar = 0;
 
-  /** 3) Test questions (20). */
+  /** 2) Test questions. */
   testQuestions.forEach((q, index) => {
     const sug = q.suggestion || "";
     const thinkingMs = showAiStream ? sampleThinkingMs() : 0;
@@ -384,89 +365,152 @@ async function main() {
 
   });
 
+  /** 3) Poczucie kontroli nad zadaniem (1-6). */
   timeline.push({
     type: SurveyLikertPlugin,
-
+    preamble: `<div class="survey-block survey-block--demo survey-preamble--top survey-layout--single-question">
+  <h1 class="survey-title">Na kolejnych stronach znajdują się różne pytania. Prosimy o udzielanie odpowiedzi zgodnie z prawdą. Skala do każdego zestawu pytań jest opisana u góry strony lub bezpośrednio na skali.</h1>
+  <p class="survey-lead">(1 - brak kontroli, 2 - niemal brak kontroli, 3 - nieco kontroli, 4 - pewna kontrola, 5 - niemal pełna kontrola, 6 - pełna kontrola)</p>
+</div>`,
     questions: [
       {
-        prompt: "Mam kontrolę nad moim życiem.",
-        labels: LIKERT_7_WORD_LABELS,
-        name: "greenaway_control_life",
-        required: true,
-      },
-      {
-        prompt: "Gdy daję z siebie wszystko życie nabiera sensu.",
-        labels: LIKERT_5_WORD_LABELS,
-        name: "meaningfulness_01",
-        required: true,
-      },
-      {
-        prompt: "Kiedy bardzo się staram, moje życie ma sens.",
-        labels: LIKERT_5_WORD_LABELS,
-        name: "meaningfulness_02",
-        required: true,
-      },
-      {
-        prompt:
-          "Kiedy wymagam od siebie więcej czuję, że realizuję swoje ideały.",
-        labels: LIKERT_5_WORD_LABELS,
-        name: "meaningfulness_03",
-        required: true,
-      },
-      {
-        prompt: "Lubię, gdy życie stawia przede mną intelektualne wyzwania.",
-        labels: LIKERT_5_WORD_LABELS,
-        name: "nfc_01",
-        required: true,
-      },
-      {
-        prompt:
-          "Nie podejmuję się rozwiązywania złożonych problemów intelektualnych.",
-        labels: LIKERT_5_WORD_LABELS,
-        name: "nfc_02",
-        required: true,
-      },
-      {
-        prompt: "Staram się wybierać zadania, które są mało skomplikowane.",
-        labels: LIKERT_5_WORD_LABELS,
-        name: "nfc_03",
-        required: true,
-      },
-      {
-        prompt:
-          "Wolę nauczyć się, jak rozwiązać problem, niż dostać gotowe rozwiązanie.",
-        labels: LIKERT_5_WORD_LABELS,
-        name: "nfc_04",
-        required: true,
-      },
-      {
-        prompt:
-          "Wolę zadania, które wymagają ode mnie całkowitej koncentracji, niż te, których rozwiązanie przychodzi mi bez trudu.",
-        labels: LIKERT_5_WORD_LABELS,
-        name: "nfc_05",
-        required: true,
-      },
-      {
-        prompt:
-          "W jakim stopniu miałeś/miałaś poczucie kontroli nad zadaniem?",
-        labels: CONTROL_6_WORD_LABELS,
+        prompt: "W jakim stopniu miałeś/miałaś poczucie kontroli nad zadaniem?",
+        labels: SCALE_1_TO_6_LABELS,
         name: "control_over_task",
         required: true,
       },
     ],
     button_label: "Dalej",
     scale_width: 720,
-    data: { measure: "post_test_questionnaires_plus_control", phase: "post_test_questionnaires" },
+    data: { measure: "control_over_task", phase: "post_test_control_over_task" },
   });
 
-  /** 5) Result screen after test (before demographics). */
+  /** 4) Samoocena wykonania zadania (-2..2). */
+  timeline.push({
+    type: SurveyLikertPlugin,
+    preamble: `<div class="survey-block survey-block--demo survey-preamble--top">
+  <h1 class="survey-title">Prosimy o udzielenie odpowiedzi na poniższe pytania.</h1>
+</div>`,
+    questions: [
+      {
+        prompt: "Określ swoje poczucie skuteczności podczas wykonywania zadania.",
+        labels: TASK_SELF_EFFICACY_SCALE,
+        name: "task_self_efficacy_01",
+        required: true,
+      },
+      {
+        prompt:
+          "Określ, jak sprawny/a czułeś/aś się podczas wykonywania zadania.",
+        labels: TASK_EFFICIENCY_SCALE,
+        name: "task_self_efficacy_02",
+        required: true,
+      },
+      {
+        prompt:
+          "Określ swoje poczucie kompetencji podczas wykonywania zadania.",
+        labels: TASK_COMPETENCE_SCALE,
+        name: "task_self_efficacy_03",
+        required: true,
+      },
+    ],
+    button_label: "Dalej",
+    scale_width: 720,
+    data: { measure: "task_self_efficacy", phase: "post_test_task_self_efficacy" },
+  });
+
+  /** 5) Meaningfulness + Need for Cognition (1-5). */
+  timeline.push({
+    type: SurveyLikertPlugin,
+    preamble: `<div class="survey-block survey-block--demo survey-preamble--top">
+  <h1 class="survey-title">Prosimy o udzielenie odpowiedzi na poniższe pytania.</h1>
+  <p class="survey-lead">(1 - zdecydowanie się nie zgadzam, 2 - nie zgadzam się, 3 - nie mam zdania, 4 - zgadzam się, 5 - zdecydowanie się zgadzam)</p>
+</div>`,
+    questions: [
+      {
+        prompt: "Gdy daję z siebie wszystko życie nabiera sensu.",
+        labels: SCALE_1_TO_5_LABELS,
+        name: "meaningfulness_01",
+        required: true,
+      },
+      {
+        prompt: "Kiedy bardzo się staram, moje życie ma sens.",
+        labels: SCALE_1_TO_5_LABELS,
+        name: "meaningfulness_02",
+        required: true,
+      },
+      {
+        prompt:
+          "Kiedy wymagam od siebie więcej czuję, że realizuję swoje ideały.",
+        labels: SCALE_1_TO_5_LABELS,
+        name: "meaningfulness_03",
+        required: true,
+      },
+      {
+        prompt: "Lubię, gdy życie stawia przede mną intelektualne wyzwania.",
+        labels: SCALE_1_TO_5_LABELS,
+        name: "nfc_01",
+        required: true,
+      },
+      {
+        prompt:
+          "Nie podejmuję się rozwiązywania złożonych problemów intelektualnych.",
+        labels: SCALE_1_TO_5_LABELS,
+        name: "nfc_02",
+        required: true,
+      },
+      {
+        prompt: "Staram się wybierać zadania, które są mało skomplikowane.",
+        labels: SCALE_1_TO_5_LABELS,
+        name: "nfc_03",
+        required: true,
+      },
+      {
+        prompt:
+          "Wolę nauczyć się, jak rozwiązać problem, niż dostać gotowe rozwiązanie.",
+        labels: SCALE_1_TO_5_LABELS,
+        name: "nfc_04",
+        required: true,
+      },
+      {
+        prompt:
+          "Wolę zadania, które wymagają ode mnie całkowitej koncentracji, niż te, których rozwiązanie przychodzi mi bez trudu.",
+        labels: SCALE_1_TO_5_LABELS,
+        name: "nfc_05",
+        required: true,
+      },
+    ],
+    button_label: "Dalej",
+    scale_width: 720,
+    data: { measure: "meaningfulness_and_nfc", phase: "post_test_meaningfulness_nfc" },
+  });
+
+  /** 6) Kontrola nad życiem (1-7). */
+  timeline.push({
+    type: SurveyLikertPlugin,
+    preamble: `<div class="survey-block survey-block--demo survey-preamble--top survey-layout--single-question">
+  <h1 class="survey-title">Prosimy o udzielenie odpowiedzi na poniższe pytanie.</h1>
+  <p class="survey-lead">(1 - zdecydowanie się nie zgadzam, 2 - nie zgadzam się, 3 - raczej się nie zgadzam, 4 - nie mam zdania, 5 - raczej się zgadzam, 6 - zgadzam się, 7 - zdecydowanie się zgadzam)</p>
+</div>`,
+    questions: [
+      {
+        prompt: "Mam kontrolę nad moim życiem.",
+        labels: SCALE_1_TO_7_LABELS,
+        name: "greenaway_control_life",
+        required: true,
+      },
+    ],
+    button_label: "Dalej",
+    scale_width: 720,
+    data: { measure: "greenaway_control_life", phase: "post_test_control_life" },
+  });
+
+  /** 7) Result screen after test (before demographics). */
   timeline.push({
     type: HtmlButtonResponsePlugin,
     stimulus: function () {
       return `<div class="trial-page survey-block--demo" role="main">
-  <h1 class="survey-title">Wynik</h1>
-  <p class="survey-lead">Udzielono odpowiedzi: <strong>${answeredSoFar}</strong> / ${nTotal}</p>
-  <p class="survey-lead">Liczba poprawnych odpowiedzi: <strong>${correctSoFar}</strong></p>
+  <h1 class="survey-title">Twój wynik z części testowej</h1>
+  <p class="survey-lead">Liczba poprawnych odpowiedzi: <strong>${correctSoFar}</strong> / ${nTotal}</p>
 </div>`;
     },
     choices: ["Dalej"],
@@ -475,11 +519,11 @@ async function main() {
     data: { phase: "results_screen" },
   });
 
-  /** 6) Demographics at the end. */
+  /** 8) Demographics. */
   timeline.push({
     type: SurveyMultiChoicePlugin,
-    preamble: `<div class="survey-block survey-block--demo">
-  <h1 class="survey-title">Demografia</h1>
+    preamble: `<div class="survey-block survey-block--demo survey-block--demographics">
+  <h1 class="survey-title">Prosimy o udzielenie odpowiedzi na poniższe pytania.</h1>
 </div>`,
     questions: [
       {
@@ -525,7 +569,81 @@ async function main() {
     data: { phase: "demographics" },
   });
 
-  /** 7) Final screen — explicit submit/finish action. */
+  /** 9) Emotions after demographics (1-7). */
+  timeline.push({
+    type: SurveyLikertPlugin,
+    preamble: `<div class="survey-block survey-block--demo survey-preamble--top">
+  <h1 class="survey-title">Prosimy o udzielenie odpowiedzi na poniższe pytanie.</h1>
+</div>`,
+    questions: [
+      {
+        prompt:
+          '<span class="survey-question-intro">Podczas wykonywania poprzedniego zadania czułem/am:</span>',
+        labels: [""],
+        name: "emotion_intro_prompt",
+        required: false,
+      },
+      {
+        prompt: "Niepokój",
+        labels: AFFECT_1_TO_7_ANCHORED_SCALE,
+        name: "emotion_anxiety",
+        required: true,
+      },
+      {
+        prompt: "Niezadowolenie z siebie",
+        labels: AFFECT_1_TO_7_ANCHORED_SCALE,
+        name: "emotion_self_dissatisfaction",
+        required: true,
+      },
+      {
+        prompt: "Smutek",
+        labels: AFFECT_1_TO_7_ANCHORED_SCALE,
+        name: "emotion_sadness",
+        required: true,
+      },
+      {
+        prompt: "Dobrze",
+        labels: AFFECT_1_TO_7_ANCHORED_SCALE,
+        name: "emotion_feeling_good",
+        required: true,
+      },
+      {
+        prompt: "Znudzenie",
+        labels: AFFECT_1_TO_7_ANCHORED_SCALE,
+        name: "emotion_boredom",
+        required: true,
+      },
+      {
+        prompt: "Brak motywacji",
+        labels: AFFECT_1_TO_7_ANCHORED_SCALE,
+        name: "emotion_lack_of_motivation",
+        required: true,
+      },
+      {
+        prompt: "Zdołowanie",
+        labels: AFFECT_1_TO_7_ANCHORED_SCALE,
+        name: "emotion_low_mood",
+        required: true,
+      },
+      {
+        prompt: "Zmęczenie",
+        labels: AFFECT_1_TO_7_ANCHORED_SCALE,
+        name: "emotion_fatigue",
+        required: true,
+      },
+      {
+        prompt: "Niepewność",
+        labels: AFFECT_1_TO_7_ANCHORED_SCALE,
+        name: "emotion_uncertainty",
+        required: true,
+      },
+    ],
+    button_label: "Dalej",
+    scale_width: 720,
+    data: { measure: "post_task_emotions", phase: "post_demographics_emotions" },
+  });
+
+  /** 10) Final screen — explicit submit/finish action. */
   timeline.push({
     type: HtmlButtonResponsePlugin,
     stimulus: `<div class="trial-page survey-block--demo" role="main">
