@@ -88,6 +88,48 @@ function formatOptionsStacked(optionsText) {
     .join("");
 }
 
+function mapLikertScore(fieldName, rawValue) {
+  if (rawValue === "" || rawValue === null || rawValue === undefined) return "";
+  const idx = Number(rawValue);
+  if (!Number.isFinite(idx)) return rawValue;
+
+  if (
+    fieldName === "task_self_efficacy_01" ||
+    fieldName === "task_self_efficacy_02" ||
+    fieldName === "task_self_efficacy_03"
+  ) {
+    return idx - 2; // 0..4 -> -2..2
+  }
+  if (fieldName === "control_over_task") return idx + 1; // 0..5 -> 1..6
+  if (fieldName === "greenaway_control_life") return idx + 1; // 0..6 -> 1..7
+  if (
+    fieldName === "meaningfulness_01" ||
+    fieldName === "meaningfulness_02" ||
+    fieldName === "meaningfulness_03" ||
+    fieldName === "nfc_01" ||
+    fieldName === "nfc_02" ||
+    fieldName === "nfc_03" ||
+    fieldName === "nfc_04" ||
+    fieldName === "nfc_05"
+  ) {
+    return idx + 1; // 0..4 -> 1..5
+  }
+  if (
+    fieldName === "emotion_anxiety" ||
+    fieldName === "emotion_self_dissatisfaction" ||
+    fieldName === "emotion_sadness" ||
+    fieldName === "emotion_feeling_good" ||
+    fieldName === "emotion_boredom" ||
+    fieldName === "emotion_lack_of_motivation" ||
+    fieldName === "emotion_low_mood" ||
+    fieldName === "emotion_fatigue" ||
+    fieldName === "emotion_uncertainty"
+  ) {
+    return idx + 1; // 0..6 -> 1..7
+  }
+  return idx;
+}
+
 /** Copy questionnaire response object keys to top-level CSV columns. */
 function flattenSurveyResponseFields(data) {
   if (!data || !data.response) return;
@@ -101,8 +143,88 @@ function flattenSurveyResponseFields(data) {
   }
   if (!response || typeof response !== "object") return;
   Object.keys(response).forEach((key) => {
-    data[key] = response[key];
+    data[key] = mapLikertScore(key, response[key]);
   });
+}
+
+function toCsvCell(value) {
+  if (value === null || value === undefined) return "";
+  const s = String(value);
+  if (/[",\n]/.test(s)) {
+    return `"${s.replace(/"/g, '""')}"`;
+  }
+  return s;
+}
+
+function buildParticipantLevelCsv(rows) {
+  const firstRow = rows[0] || {};
+  const getLatestValue = function (field) {
+    for (let i = rows.length - 1; i >= 0; i -= 1) {
+      const v = rows[i] && rows[i][field];
+      if (v !== undefined && v !== null && v !== "") return v;
+    }
+    return "";
+  };
+
+  const out = {
+    participant_id: firstRow.participant_id || "",
+    ai_group: firstRow.ai_group || "",
+    assignment_source: firstRow.assignment_source || "",
+  };
+
+  const testRows = rows.filter(
+    (r) => r && r.question_id !== undefined && r.question_id !== null,
+  );
+  for (let i = 0; i < TEST_QUESTIONS_LIMIT; i += 1) {
+    const n = String(i + 1).padStart(2, "0");
+    const tr = testRows[i] || {};
+    out[`test_q${n}_id`] = tr.question_id || "";
+    out[`test_q${n}_response`] = tr.response_letter || "";
+    out[`test_q${n}_correct`] =
+      tr.correct === true ? 1 : tr.correct === false ? 0 : "";
+    out[`test_q${n}_rt_ms`] = tr.rt_ms_stimulus_to_response ?? "";
+    out[`test_q${n}_ai_suggestion`] = tr.ai_suggestion_letter || "";
+  }
+  out.test_answered_total = testRows.length;
+  out.test_correct_total = testRows.reduce(
+    (sum, tr) => sum + (tr && tr.correct === true ? 1 : 0),
+    0,
+  );
+
+  [
+    "control_over_task",
+    "task_self_efficacy_01",
+    "task_self_efficacy_02",
+    "task_self_efficacy_03",
+    "meaningfulness_01",
+    "meaningfulness_02",
+    "meaningfulness_03",
+    "nfc_01",
+    "nfc_02",
+    "nfc_03",
+    "nfc_04",
+    "nfc_05",
+    "greenaway_control_life",
+    "demo_age",
+    "demo_gender",
+    "demo_tech_use",
+    "demo_ai_use",
+    "emotion_anxiety",
+    "emotion_self_dissatisfaction",
+    "emotion_sadness",
+    "emotion_feeling_good",
+    "emotion_boredom",
+    "emotion_lack_of_motivation",
+    "emotion_low_mood",
+    "emotion_fatigue",
+    "emotion_uncertainty",
+  ].forEach((field) => {
+    out[field] = getLatestValue(field);
+  });
+
+  const headers = Object.keys(out);
+  const values = headers.map((h) => toCsvCell(out[h]));
+  return `${headers.join(",")}\n${values.join(",")}\n`;
 }
 
 function installPolishValidationMessages() {
@@ -158,7 +280,7 @@ async function main() {
       jsPsych.getDisplayElement().innerHTML = "";
     },
     on_finish: function () {
-      const csv = jsPsych.data.get().csv();
+      const csv = buildParticipantLevelCsv(jsPsych.data.get().values());
       submitResultsCsv(csv);
     },
   });
@@ -610,7 +732,7 @@ async function main() {
     questions: [
       {
         prompt:
-          '<span class="survey-question-intro">Podczas wykonywania poprzedniego zadania czułem/am:</span><br>Niepokój',
+          '<span class="survey-question-intro">Podczas wykonywania poprzedniego zadania czułem/am:</span><br><center>Niepokój</center>',
         labels: AFFECT_1_TO_7_ANCHORED_SCALE,
         name: "emotion_anxiety",
         required: true,

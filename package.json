@@ -6,7 +6,7 @@
     "postinstall": "node scripts/vendor-copy.mjs",
     "build": "node scripts/vendor-copy.mjs && node scripts/copy-to-public.mjs",
     "start": "npx --yes serve -l 3000 .",
-    "dev": "vercel dev",
+    "dev": "npm start",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
