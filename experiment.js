@@ -88,6 +88,23 @@ function formatOptionsStacked(optionsText) {
     .join("");
 }
 
+/** Copy questionnaire response object keys to top-level CSV columns. */
+function flattenSurveyResponseFields(data) {
+  if (!data || !data.response) return;
+  let response = data.response;
+  if (typeof response === "string") {
+    try {
+      response = JSON.parse(response);
+    } catch {
+      return;
+    }
+  }
+  if (!response || typeof response !== "object") return;
+  Object.keys(response).forEach((key) => {
+    data[key] = response[key];
+  });
+}
+
 function installPolishValidationMessages() {
   const clearRadioGroupValidity = function (inputEl) {
     if (!inputEl || inputEl.type !== "radio" || !inputEl.name) return;
@@ -383,6 +400,9 @@ async function main() {
     button_label: "Dalej",
     scale_width: 720,
     data: { measure: "control_over_task", phase: "post_test_control_over_task" },
+    on_finish: function (data) {
+      flattenSurveyResponseFields(data);
+    },
   });
 
   /** 4) Samoocena wykonania zadania (-2..2). */
@@ -416,6 +436,9 @@ async function main() {
     button_label: "Dalej",
     scale_width: 720,
     data: { measure: "task_self_efficacy", phase: "post_test_task_self_efficacy" },
+    on_finish: function (data) {
+      flattenSurveyResponseFields(data);
+    },
   });
 
   /** 5) Meaningfulness + Need for Cognition (1-5). */
@@ -482,6 +505,9 @@ async function main() {
     button_label: "Dalej",
     scale_width: 720,
     data: { measure: "meaningfulness_and_nfc", phase: "post_test_meaningfulness_nfc" },
+    on_finish: function (data) {
+      flattenSurveyResponseFields(data);
+    },
   });
 
   /** 6) Kontrola nad życiem (1-7). */
@@ -502,6 +528,9 @@ async function main() {
     button_label: "Dalej",
     scale_width: 720,
     data: { measure: "greenaway_control_life", phase: "post_test_control_life" },
+    on_finish: function (data) {
+      flattenSurveyResponseFields(data);
+    },
   });
 
   /** 7) Result screen after test (before demographics). */
@@ -567,6 +596,9 @@ async function main() {
     button_label: "Dalej",
     randomize_question_order: false,
     data: { phase: "demographics" },
+    on_finish: function (data) {
+      flattenSurveyResponseFields(data);
+    },
   });
 
   /** 9) Emotions after demographics (1-7). */
@@ -578,13 +610,7 @@ async function main() {
     questions: [
       {
         prompt:
-          '<span class="survey-question-intro">Podczas wykonywania poprzedniego zadania czułem/am:</span>',
-        labels: [""],
-        name: "emotion_intro_prompt",
-        required: false,
-      },
-      {
-        prompt: "Niepokój",
+          '<span class="survey-question-intro">Podczas wykonywania poprzedniego zadania czułem/am:</span><br>Niepokój',
         labels: AFFECT_1_TO_7_ANCHORED_SCALE,
         name: "emotion_anxiety",
         required: true,
@@ -641,6 +667,9 @@ async function main() {
     button_label: "Dalej",
     scale_width: 720,
     data: { measure: "post_task_emotions", phase: "post_demographics_emotions" },
+    on_finish: function (data) {
+      flattenSurveyResponseFields(data);
+    },
   });
 
   /** 10) Final screen — explicit submit/finish action. */

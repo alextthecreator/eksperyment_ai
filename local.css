@@ -558,10 +558,6 @@ body {
   font-weight: 600;
 }
 
-#jspsych-content .jspsych-survey-likert-opts[data-name="emotion_intro_prompt"] {
-  display: none;
-}
-
 #jspsych-content
   .jspsych-survey-likert-opts
   li:first-child
