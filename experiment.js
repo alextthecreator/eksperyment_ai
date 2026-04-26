@@ -158,6 +158,10 @@ function toCsvCell(value) {
 
 function buildParticipantLevelCsv(rows) {
   const firstRow = rows[0] || {};
+  const toRate = function (num, den) {
+    if (!den) return "";
+    return Number((num / den).toFixed(4));
+  };
   const getLatestValue = function (field) {
     for (let i = rows.length - 1; i >= 0; i -= 1) {
       const v = rows[i] && rows[i][field];
@@ -175,20 +179,68 @@ function buildParticipantLevelCsv(rows) {
   const testRows = rows.filter(
     (r) => r && r.question_id !== undefined && r.question_id !== null,
   );
+  let followedAiCount = 0;
+  let aiSuggestionAvailableTotal = 0;
+  let aiSuggestionCorrectCount = 0;
+  let aiSuggestionWrongCount = 0;
+  let followedWrongAiCount = 0;
+  let followedAiExplanationCount = 0;
+  let withExplanationExposureTotal = 0;
+
   for (let i = 0; i < TEST_QUESTIONS_LIMIT; i += 1) {
     const n = String(i + 1).padStart(2, "0");
     const tr = testRows[i] || {};
-    out[`test_q${n}_id`] = tr.question_id || "";
-    out[`test_q${n}_response`] = tr.response_letter || "";
-    out[`test_q${n}_correct`] =
+    const responseLetter = tr.response_letter || "";
+    const aiSuggestion = tr.ai_suggestion_letter || "";
+    const correctKey = tr.correct_key || "";
+    const hasAiSuggestion =
+      aiSuggestion !== "" && aiSuggestion !== AI_METRIC_NA ? 1 : 0;
+    const followedAi =
+      hasAiSuggestion && responseLetter !== "" && responseLetter === aiSuggestion
+        ? 1
+        : 0;
+    const aiSuggestionIsCorrect =
+      hasAiSuggestion && correctKey !== "" ? (aiSuggestion === correctKey ? 1 : 0) : "";
+    const followedAiExplanation =
+      firstRow.ai_group === "with_explanation" ? followedAi : "";
+
+    if (hasAiSuggestion) {
+      aiSuggestionAvailableTotal += 1;
+      if (aiSuggestionIsCorrect === 1) aiSuggestionCorrectCount += 1;
+      if (aiSuggestionIsCorrect === 0) aiSuggestionWrongCount += 1;
+      if (followedAi === 1) followedAiCount += 1;
+      if (aiSuggestionIsCorrect === 0 && followedAi === 1) followedWrongAiCount += 1;
+    }
+    if (firstRow.ai_group === "with_explanation" && hasAiSuggestion) {
+      withExplanationExposureTotal += 1;
+      if (followedAiExplanation === 1) followedAiExplanationCount += 1;
+    }
+
+    out[`test_q${n}_response`] = responseLetter;
+    out[`test_q${n}_is_correct`] =
       tr.correct === true ? 1 : tr.correct === false ? 0 : "";
+    out[`test_q${n}_followed_ai`] = followedAi;
+    out[`test_q${n}_ai_suggestion_is_correct`] = aiSuggestionIsCorrect;
+    out[`test_q${n}_followed_ai_explanation`] = followedAiExplanation;
     out[`test_q${n}_rt_ms`] = tr.rt_ms_stimulus_to_response ?? "";
-    out[`test_q${n}_ai_suggestion`] = tr.ai_suggestion_letter || "";
   }
   out.test_answered_total = testRows.length;
   out.test_correct_total = testRows.reduce(
     (sum, tr) => sum + (tr && tr.correct === true ? 1 : 0),
     0,
+  );
+  out.test_accuracy = toRate(out.test_correct_total, out.test_answered_total);
+  out.ai_suggestion_available_total = aiSuggestionAvailableTotal;
+  out.followed_ai_count = followedAiCount;
+  out.followed_ai_rate = toRate(followedAiCount, aiSuggestionAvailableTotal);
+  out.ai_suggestion_correct_count = aiSuggestionCorrectCount;
+  out.ai_suggestion_wrong_count = aiSuggestionWrongCount;
+  out.followed_wrong_ai_count = followedWrongAiCount;
+  out.followed_wrong_ai_rate = toRate(followedWrongAiCount, aiSuggestionWrongCount);
+  out.followed_ai_explanation_count = followedAiExplanationCount;
+  out.followed_ai_explanation_rate = toRate(
+    followedAiExplanationCount,
+    withExplanationExposureTotal,
   );
 
   [
@@ -618,7 +670,7 @@ async function main() {
       },
       {
         prompt:
-          "Wolę zadania, które wymagają ode mnie całkowitej koncentracji, niż te, których rozwiązanie przychodzi mi bez trudu.",
+          "<center>Wolę zadania, które wymagają ode mnie całkowitej koncentracji, niż te, których rozwiązanie przychodzi mi bez trudu.</center>",
         labels: SCALE_1_TO_5_LABELS,
         name: "nfc_05",
         required: true,
