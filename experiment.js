@@ -190,9 +190,11 @@ function buildParticipantLevelCsv(rows) {
     const hasAiSuggestion =
       aiSuggestion !== "" && aiSuggestion !== AI_METRIC_NA ? 1 : 0;
     const followedAi =
-      hasAiSuggestion && responseLetter !== "" && responseLetter === aiSuggestion
-        ? 1
-        : 0;
+      hasAiSuggestion === 1
+        ? responseLetter !== "" && responseLetter === aiSuggestion
+          ? 1
+          : 0
+        : "";
     const aiSuggestionIsCorrect =
       hasAiSuggestion && correctKey !== "" ? (aiSuggestion === correctKey ? 1 : 0) : "";
     const followedAiExplanation =
@@ -855,6 +857,7 @@ async function main() {
         const csv = buildParticipantLevelCsv(jsPsych.data.get().values());
         submitResultsCsv(csv);
         debrief.style.display = "block";
+        jsPsych.setProgressBar(1);
       });
     },
   });
