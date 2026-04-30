@@ -76,9 +76,9 @@ export const QUESTIONS = [
     "id": 10,
     "text": "Najdłuższa rzeka świata?",
     "options": "A) Wisła B) Amazonka C) Nil D) Jangcy",
-    "key": "B",
+    "key": "C",
     "suggestion": "C",
-    "explanation": "Najnowsze badania geograficzne przyznają palmę pierwszeństwa rzece płynącej przez Amerykę Południową."
+    "explanation": "Rzeka ta ma długość 6650 km."
   },
   {
     "id": 11,

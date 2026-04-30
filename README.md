@@ -1,7 +1,7 @@
 # AI Experiment — jsPsych (Browser Task)
 
 Behavioral web experiment built with **[jsPsych 7](https://www.jspsych.org/)**.
-Participants complete a fixed sequence of intro, test questions, post-test questionnaires, result screen, demographics, affect items, and a final submit screen.
+Participants complete a fixed sequence of intro, test questions, post-test questionnaires, result screen, demographics, affect items, and a final submit screen with inline debriefing.
 
 AI assistance is simulated from predefined content in `questions_data.js` and shown with a short animated "searching + typing" flow.
 
@@ -17,7 +17,8 @@ This README reflects the latest implementation, including:
 - no local CSV auto-download at the end,
 - mobile-focused styling updates,
 - AI timing changes (`max 4s`, slow-search hint after `3s`),
-- post-test questionnaires split into separate pages with anchored scale endpoints (labels and numbers).
+- post-test questionnaires split into separate pages with anchored scale endpoints (labels and numbers),
+- inline debriefing text shown under the submit button right after clicking `Wyślij i zakończ`.
 
 ---
 
@@ -53,7 +54,7 @@ This README reflects the latest implementation, including:
 | 7    | Result summary screen                                                                                              |
 | 8    | Demographics                                                                                                       |
 | 9    | Emotions after task (1-7 scale with anchored ends: `1/wcale`, `7/ekstremalnie`)                                  |
-| 10   | Thank-you screen                                                                                                   |
+| 10   | Submit screen (`Wyślij i zakończ`) that triggers data upload and reveals inline debriefing under the button      |
 
 ---
 

@@ -170,6 +170,7 @@ function buildParticipantLevelCsv(rows) {
     participant_id: firstRow.participant_id || "",
     ai_group: firstRow.ai_group || "",
     assignment_source: firstRow.assignment_source || "",
+    data_collected_at_utc: firstRow.data_collected_at_utc || "",
   };
 
   const testRows = rows.filter(
@@ -311,18 +312,16 @@ async function main() {
     on_trial_start: function () {
       jsPsych.getDisplayElement().innerHTML = "";
     },
-    on_finish: function () {
-      const csv = buildParticipantLevelCsv(jsPsych.data.get().values());
-      submitResultsCsv(csv);
-    },
   });
 
   const participantId =
     new URLSearchParams(window.location.search).get("participant") ||
     jsPsych.randomization.randomID(8);
+  const dataCollectedAtUtc = new Date().toISOString();
 
   jsPsych.data.addProperties({
     participant_id: participantId,
+    data_collected_at_utc: dataCollectedAtUtc,
   });
 
   const boot = document.getElementById("experiment-boot");
@@ -782,7 +781,7 @@ async function main() {
         required: true,
       },
       {
-        prompt: "Dobrze",
+        prompt: "Się dobrze",
         labels: AFFECT_1_TO_7_ANCHORED_SCALE,
         name: "emotion_feeling_good",
         required: true,
@@ -826,17 +825,38 @@ async function main() {
     },
   });
 
-  /** 10) Final screen — explicit submit/finish action. */
+  /** 10) Final screen — submit + inline debriefing on same page. */
   timeline.push({
     type: HtmlButtonResponsePlugin,
     stimulus: `<div class="trial-page survey-block--demo" role="main">
   <h1 class="survey-title">Dziękujemy za udział w badaniu</h1>
   <p class="survey-lead">Kliknij przycisk poniżej, aby zakończyć badanie i wysłać odpowiedzi.</p>
+  <div style="margin-top:1rem">
+    <button id="inline-submit-btn" class="jspsych-btn">Wyślij i zakończ</button>
+  </div>
+  <div id="inline-debriefing" class="survey-prose" style="margin-top:1.25rem;display:none;">
+    <h2 class="survey-subtitle">Debriefing</h2>
+    <p>Dziękujemy za udział w badaniu. Celem badania jest sprawdzenie, czy rodzaj wsparcia AI wpływa na poczucie sprawczości i kontroli podczas podejmowania decyzji.</p>
+    <p>Uczestnicy byli losowo przydzielani do jednej z trzech wersji zadania: bez wsparcia AI, ze wsparciem AI bez uzasadnienia lub ze wsparciem AI z uzasadnieniem. W części z AI sugestie mogły być czasem niepoprawne.</p>
+    <p>Twoje odpowiedzi zostały zapisane anonimowo i będą analizowane wyłącznie zbiorczo do celów naukowych.</p>
+  </div>
 </div>`,
-    choices: ["Wyślij i zakończ"],
-    button_layout: "grid",
-    grid_columns: 1,
-    data: { phase: "debrief_thanks" },
+    choices: [],
+    data: { phase: "submit_with_inline_debriefing" },
+    on_load: function () {
+      const submitBtn = document.getElementById("inline-submit-btn");
+      const debrief = document.getElementById("inline-debriefing");
+      if (!submitBtn || !debrief) return;
+
+      submitBtn.addEventListener("click", function () {
+        if (submitBtn.disabled) return;
+        submitBtn.disabled = true;
+        submitBtn.textContent = "Odpowiedzi wysłane";
+        const csv = buildParticipantLevelCsv(jsPsych.data.get().values());
+        submitResultsCsv(csv);
+        debrief.style.display = "block";
+      });
+    },
   });
 
   const loading = document.getElementById("experiment-loading");
