@@ -858,6 +858,16 @@ async function main() {
         submitResultsCsv(csv);
         debrief.style.display = "block";
         jsPsych.setProgressBar(1);
+        const progressBarInner = document.getElementById("jspsych-progressbar-inner");
+        if (progressBarInner) {
+          progressBarInner.style.width = "100%";
+        }
+        const progressBarContainer = document.getElementById(
+          "jspsych-progressbar-container",
+        );
+        if (progressBarContainer) {
+          progressBarContainer.setAttribute("aria-valuenow", "100");
+        }
       });
     },
   });
