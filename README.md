@@ -43,18 +43,18 @@ This README reflects the latest implementation, including:
 
 ## Procedure (Screen Order)
 
-| Step | Content                                                                                                            |
-| ---- | ------------------------------------------------------------------------------------------------------------------ |
-| 1    | Intro screen: welcome + study description + instruction + GDPR text + 18+ participation condition                  |
-| 2    | Test block: multiple-choice questions with optional simulated AI support                                           |
-| 3    | Post-test page: control over task (1-6 scale, numeric labels)                                                     |
-| 4    | Post-test page: task self-efficacy / skill / competence (separate -2 to 2 anchors per item)                       |
-| 5    | Post-test page: meaningfulness + need for cognition (1-5 scale, numeric labels)                                   |
-| 6    | Post-test page: control over life (1-7 scale, numeric labels)                                                     |
-| 7    | Result summary screen                                                                                              |
-| 8    | Demographics                                                                                                       |
-| 9    | Emotions after task (1-7 scale with anchored ends: `1/wcale`, `7/ekstremalnie`)                                  |
-| 10   | Submit screen (`Wyślij i zakończ`) that triggers data upload and reveals inline debriefing under the button      |
+| Step | Content                                                                                                     |
+| ---- | ----------------------------------------------------------------------------------------------------------- |
+| 1    | Intro screen: welcome + study description + instruction + GDPR text + 18+ participation condition           |
+| 2    | Test block: multiple-choice questions with optional simulated AI support                                    |
+| 3    | Post-test page: control over task (1-6 scale, numeric labels)                                               |
+| 4    | Post-test page: task self-efficacy / skill / competence (separate -2 to 2 anchors per item)                 |
+| 5    | Post-test page: meaningfulness + need for cognition (1-5 scale, numeric labels)                             |
+| 6    | Post-test page: control over life (1-7 scale, numeric labels)                                               |
+| 7    | Demographics                                                                                                |
+| 8    | Result summary screen                                                                                       |
+| 9    | Emotions after task (1-7 scale with anchored ends: `1/wcale`, `7/ekstremalnie`)                             |
+| 10   | Submit screen (`Wyślij i zakończ`) that triggers data upload and reveals inline debriefing under the button |
 
 ---
 

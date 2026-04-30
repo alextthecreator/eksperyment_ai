@@ -1,7 +1,6 @@
 import { initJsPsych } from "jspsych";
 import HtmlButtonResponsePlugin from "./vendor/@jspsych/plugin-html-button-response/dist/index.js";
 import SurveyLikertPlugin from "./vendor/@jspsych/plugin-survey-likert/dist/index.js";
-import SurveyMultiChoicePlugin from "./vendor/@jspsych/plugin-survey-multi-choice/dist/index.js";
 import { estimateStreamMs, runAiStream, sampleThinkingMs } from "./ai_stream.js";
 import { QUESTIONS } from "./questions_data.js";
 import { submitResultsCsv } from "./results_submit.js";
@@ -688,7 +687,72 @@ async function main() {
     },
   });
 
-  /** 7) Result screen after test (before demographics). */
+  /** 7) Demographics (before result screen). */
+  timeline.push({
+    type: HtmlButtonResponsePlugin,
+    stimulus: `<div class="trial-page survey-block--demo survey-block--demographics" role="main">
+  <h1 class="survey-title">Prosimy o udzielenie odpowiedzi na poniższe pytania.</h1>
+  <form id="demographics-form" class="survey-prose" style="max-width:42rem;margin:0 auto;text-align:left;">
+    <div style="margin-top:1rem;">
+      <label for="demo-age-input"><strong>Wiek (w liczbach)</strong></label>
+      <input id="demo-age-input" name="demo_age" type="number" inputmode="numeric" min="18" max="120" step="1" required style="display:block;width:100%;margin-top:0.4rem;padding:0.55rem 0.65rem;font:inherit;box-sizing:border-box;" />
+    </div>
+
+    <fieldset style="margin-top:1.25rem;border:0;padding:0;">
+      <legend><strong>2) Płeć</strong></legend>
+      <label style="display:block;margin-top:0.45rem;"><input type="radio" name="demo_gender" value="Kobieta" required> Kobieta</label>
+      <label style="display:block;margin-top:0.45rem;"><input type="radio" name="demo_gender" value="Mężczyzna" required> Mężczyzna</label>
+      <label style="display:block;margin-top:0.45rem;"><input type="radio" name="demo_gender" value="Niebinarna / inna" required> Niebinarna / inna</label>
+      <label style="display:block;margin-top:0.45rem;"><input type="radio" name="demo_gender" value="Wolę nie podawać" required> Wolę nie podawać</label>
+    </fieldset>
+
+    <fieldset style="margin-top:1.25rem;border:0;padding:0;">
+      <legend><strong>3) Jak bardzo na co dzień korzystasz z technologii (komputer, smartfon, aplikacje)?</strong></legend>
+      <label style="display:block;margin-top:0.45rem;"><input type="radio" name="demo_tech_use" value="Bardzo mało" required> Bardzo mało</label>
+      <label style="display:block;margin-top:0.45rem;"><input type="radio" name="demo_tech_use" value="Raczej mało" required> Raczej mało</label>
+      <label style="display:block;margin-top:0.45rem;"><input type="radio" name="demo_tech_use" value="Średnio" required> Średnio</label>
+      <label style="display:block;margin-top:0.45rem;"><input type="radio" name="demo_tech_use" value="Raczej dużo" required> Raczej dużo</label>
+      <label style="display:block;margin-top:0.45rem;"><input type="radio" name="demo_tech_use" value="Bardzo dużo" required> Bardzo dużo</label>
+    </fieldset>
+
+    <fieldset style="margin-top:1.25rem;border:0;padding:0;">
+      <legend><strong>4) Jak często korzystasz z narzędzi sztucznej inteligencji (np. czat, tłumacz, generowanie tekstu)?</strong></legend>
+      <label style="display:block;margin-top:0.45rem;"><input type="radio" name="demo_ai_use" value="Nigdy" required> Nigdy</label>
+      <label style="display:block;margin-top:0.45rem;"><input type="radio" name="demo_ai_use" value="Rzadko" required> Rzadko</label>
+      <label style="display:block;margin-top:0.45rem;"><input type="radio" name="demo_ai_use" value="Czasami" required> Czasami</label>
+      <label style="display:block;margin-top:0.45rem;"><input type="radio" name="demo_ai_use" value="Często" required> Często</label>
+      <label style="display:block;margin-top:0.45rem;"><input type="radio" name="demo_ai_use" value="Bardzo często" required> Bardzo często</label>
+    </fieldset>
+
+    <div style="margin-top:1.4rem;text-align:center;">
+      <button type="submit" id="demographics-submit-btn" class="jspsych-btn">Dalej</button>
+    </div>
+  </form>
+</div>`,
+    choices: [],
+    data: { phase: "demographics" },
+    on_load: function () {
+      const form = document.getElementById("demographics-form");
+      if (!form) return;
+
+      form.addEventListener("submit", function (event) {
+        event.preventDefault();
+        if (typeof form.reportValidity === "function" && !form.reportValidity()) return;
+
+        const formData = new FormData(form);
+        const demoAgeRaw = (formData.get("demo_age") || "").toString().trim();
+        jsPsych.finishTrial({
+          phase: "demographics",
+          demo_age: demoAgeRaw,
+          demo_gender: formData.get("demo_gender") || "",
+          demo_tech_use: formData.get("demo_tech_use") || "",
+          demo_ai_use: formData.get("demo_ai_use") || "",
+        });
+      });
+    },
+  });
+
+  /** 8) Result screen after test and demographics. */
   timeline.push({
     type: HtmlButtonResponsePlugin,
     stimulus: function () {
@@ -701,59 +765,6 @@ async function main() {
     button_layout: "grid",
     grid_columns: 1,
     data: { phase: "results_screen" },
-  });
-
-  /** 8) Demographics. */
-  timeline.push({
-    type: SurveyMultiChoicePlugin,
-    preamble: `<div class="survey-block survey-block--demo survey-block--demographics">
-  <h1 class="survey-title">Prosimy o udzielenie odpowiedzi na poniższe pytania.</h1>
-</div>`,
-    questions: [
-      {
-        prompt: "1) Wiek",
-        name: "demo_age",
-        options: ["18–24", "25–34", "35–44", "45–54", "55–64", "65+"],
-        required: true,
-      },
-      {
-        prompt: "2) Płeć",
-        name: "demo_gender",
-        options: [
-          "Kobieta",
-          "Mężczyzna",
-          "Niebinarna / inna",
-          "Wolę nie podawać",
-        ],
-        required: true,
-      },
-      {
-        prompt:
-          "3) Jak bardzo na co dzień korzystasz z technologii (komputer, smartfon, aplikacje)?",
-        name: "demo_tech_use",
-        options: [
-          "Bardzo mało",
-          "Raczej mało",
-          "Średnio",
-          "Raczej dużo",
-          "Bardzo dużo",
-        ],
-        required: true,
-      },
-      {
-        prompt:
-          "4) Jak często korzystasz z narzędzi sztucznej inteligencji (np. czat, tłumacz, generowanie tekstu)?",
-        name: "demo_ai_use",
-        options: ["Nigdy", "Rzadko", "Czasami", "Często", "Bardzo często"],
-        required: true,
-      },
-    ],
-    button_label: "Dalej",
-    randomize_question_order: false,
-    data: { phase: "demographics" },
-    on_finish: function (data) {
-      flattenSurveyResponseFields(data);
-    },
   });
 
   /** 9) Emotions after demographics (1-7). */
