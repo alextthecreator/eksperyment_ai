@@ -694,7 +694,7 @@ async function main() {
   <h1 class="survey-title">Prosimy o udzielenie odpowiedzi na poniższe pytania.</h1>
   <form id="demographics-form" class="survey-prose" style="max-width:42rem;margin:0 auto;text-align:left;">
     <div style="margin-top:1rem;">
-      <label for="demo-age-input"><strong>Wiek (w liczbach)</strong></label>
+      <label for="demo-age-input"><strong>1) Wiek (w liczbach)</strong></label>
       <input id="demo-age-input" name="demo_age" type="number" inputmode="numeric" min="18" max="120" step="1" required style="display:block;width:100%;margin-top:0.4rem;padding:0.55rem 0.65rem;font:inherit;box-sizing:border-box;" />
     </div>
 
